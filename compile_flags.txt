@@ -1,0 +1,6 @@
+-Isrc
+-Idependencies/include
+-std=c++17
+
+-Wno-deprecated-declarations
+-Wno-unused-parameter
