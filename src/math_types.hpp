@@ -4,45 +4,30 @@
 #include <cmath>
 #include <type_traits>
 
+#include "simd/sse_calc.hpp"
+#include "simd/avx_calc.hpp"
+
 template <typename T, std::size_t N, typename Enable = std::enable_if_t<std::is_arithmetic_v<T>>>
-struct Vector {
+class Vector {
+private:
+    m128_t<T> simd_data;
+public:
     static constexpr std::size_t size = N;
 
-    T data[N];
-    T &x, &y, &z, &w;
+    alignas(16) T data[N]; /* The data array can be accessed as a public field for efficient iteration */
 
+    constexpr Vector() : data{} {
+        
+    }
 
-    constexpr Vector() : data{},
-        x(data[0]), 
-        y((N > 1) ? data[1] : data[0]), 
-        z((N > 2) ? data[2] : data[0]), 
-        w((N > 3) ? data[3] : data[0])  
-    {
-        for(size_t i = 0; i < N; i++) {
-            switch (i) {
-                case 0: x = data[i]; break;
-                case 1: y = data[i]; break;
-                case 2: z = data[i]; break;
-                case 3: w = data[i]; break;
-            }
-        }
+    constexpr Vector(const m128_t<T> &m_data) : simd_data(m_data), data{} {
+        sse::store(data, m_data);
     }
 
     template <typename... Args, typename = std::enable_if_t<sizeof...(Args) == N>>
-    constexpr Vector(Args... args) : data{static_cast<T>(args)...}, 
-        x(data[0]), 
-        y((N > 1) ? data[1] : data[0]), 
-        z((N > 2) ? data[2] : data[0]), 
-        w((N > 3) ? data[3] : data[0]) 
+    constexpr Vector(Args... args) : data{static_cast<T>(args)...}
     {
-        for(size_t i = 0; i < N; i++) {
-            switch (i) {
-                case 0: x = data[i]; break;
-                case 1: y = data[i]; break;
-                case 2: z = data[i]; break;
-                case 3: w = data[i]; break;
-            }
-        }
+        simd_data = sse::load(data);
     }
 
     /* data access */
@@ -88,11 +73,15 @@ struct Vector {
         for (size_t i = 0; i < N; i++) result.data[i] = data[i] - other.data[i];
         return result;
     }
-
+    
     constexpr inline Vector operator*(const Vector& other) const {
-        Vector result;
-        for (size_t i = 0; i < N; i++) result.data[i] = data[i] * other.data[i];
-        return result;
+        if constexpr (N == 4) {
+            return Vector(sse::mul<T>(simd_data, other.simd_data));
+        } else if constexpr (N != 4) {
+            Vector result;
+            for (size_t i = 0; i < N; i++) result.data[i] = data[i] * other.data[i];
+            return result;
+        }
     }
 
     constexpr inline Vector operator/(const Vector& other) const {

@@ -2,5 +2,7 @@
 -Idependencies/include
 -std=c++17
 
+-Wno-macro-redefined
+-Wno-unknown-pragmas
 -Wno-deprecated-declarations
 -Wno-unused-parameter
