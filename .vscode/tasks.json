@@ -7,7 +7,8 @@
             "args": [
                 "-std=c++17",
                 "-g",
-                "${workspaceFolder}/src/perfomance/timer.cpp",
+                "-O3",
+                "${workspaceFolder}/src/utils/timer.cpp",
                 "${workspaceFolder}/src/main.cpp",
                 "-o",
                 "${workspaceFolder}/main.exe",
