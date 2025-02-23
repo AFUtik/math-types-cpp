@@ -1,6 +1,7 @@
 #ifndef MATRIX_HPP
 #define MATRIX_HPP
 
+#include "vector.hpp"
 #include "container.hpp"
 
 namespace mtp {
@@ -11,6 +12,8 @@ struct matrix : public DataContainer<T, N*M> {
 
     static constexpr std::size_t n = N;
     static constexpr std::size_t m = M;
+
+    // vector<T*, N> rows[M];
 
     using DataContainer<T, N*M>::DataContainer;
 

@@ -19,8 +19,8 @@ template <typename T, std::size_t N, std::size_t Precition = 6>
 struct vector : public DataContainer<T, N, Precition> {
     static_assert(N!=0, "Vector size can't be zero.");
 
-    T &x, &y, &z, &w; /* XYZW */
-    T &r, &g, &b, &a; /* RGBA */
+    T &x, &y, &z, &w;
+    T &r, &g, &b, &a;
 
     constexpr vector() : DataContainer<T, N, Precition>(), INIT_XYZW_RGBA {}
 
@@ -64,7 +64,7 @@ struct vector : public DataContainer<T, N, Precition> {
 };
 
 /* static methods for vector */
-struct st_vector {
+struct vector_st {
     template<typename CastType, typename T, std::size_t N>
     static constexpr inline vector<CastType, N> cast(const vector<T, N> &container) {
         vector<CastType, N> new_container;
@@ -81,6 +81,12 @@ struct st_vector {
         for(size_t i = 0; i < N; i++) new_container.data[i]/=length;
         return new_container;
     }
+};
+
+/* the vector that stores pointers and frees them */
+template <typename T, std::size_t N>
+struct vector_ptr : public DynamicDataContainerWrapper<T, N> {
+    static_assert(N!=0, "Vector size can't be zero.");
 };
 
 using vector2i = vector<int, 2>;

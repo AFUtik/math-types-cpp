@@ -7,6 +7,7 @@
 
 #include "constfunc.hpp"
 #include <iostream>
+#include <memory>
 
 /* Namespace Math Type*/
 
@@ -17,7 +18,7 @@ struct DataContainer {
     T data[Size];
 
     static constexpr std::size_t MEMORY_SIZE = Size*sizeof(T);
-    static constexpr std::size_t SIZE = Size;
+    static constexpr std::size_t size = Size;
     static constexpr float EPSILON = 1.0f / static_cast<float>(pow10(Precition));
     
     constexpr DataContainer() : data{} {}
@@ -31,16 +32,7 @@ struct DataContainer {
         for(std::size_t i = 0; i < Size; i++) data[i] = scalar;
     }
 
-    ~DataContainer() {
-        if constexpr (std::is_pointer_v<T>) {
-            for (std::size_t i = 0; i < Size; i++) {
-                if(data[i]!=nullptr) {
-                    delete data[i];
-                    data[i] = nullptr;
-                }
-            }
-        }
-    }
+    ~DataContainer() = default;
 
     using data_iterator = T*;
     using data_citerator = const T*;
@@ -212,6 +204,13 @@ struct DataContainer {
             }
             return bitmask;
         }
+    }
+};
+
+template <typename T, std::size_t Size, std::size_t Precition = 6>
+struct DynamicDataContainerWrapper : DataContainer<std::unique_ptr<T>, Size> {
+    constexpr inline void allocate() {
+        for(std::size_t i = 0; i < Size; i++) this->data[i] = std::make_unique<T>();
     }
 };
 
