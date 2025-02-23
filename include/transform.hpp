@@ -5,40 +5,38 @@
 
 namespace mtp {
 
-enum vectorTransformFlags {
-    VEC_NULL,
-    VEC_POS,
-    VEC_SCALE,
-    QUAT
-};
-
-enum matrixTransformFlags {
-    MATRIX_NULL,
-    MAT_MODEL,
-    MAT_ROT
-};
-
 struct transform {
     template <
-        typename T, std::size_t MN, std::size_t MM,   std::size_t MFlag,
-        typename V, std::size_t N,  std::size_t VFlag
+        typename T, std::size_t MN, std::size_t MM,
+        typename V, std::size_t N
     >
-    static constexpr inline void translate(mtp::matrix<T, MN, MM, MFlag> &model, const mtp::vector<V, N, VFlag> &vector) {
+    static constexpr inline void translate(mtp::matrix<T, MN, MM> &model, const mtp::vector<V, N> &vector) {
+        static_assert(MM >= 1 || MN >= 1, "Size must be greater than one.");
+        constexpr std::size_t POS_INDEX = (MN*MM)-MN;
+        for(uint32_t i = POS_INDEX, j = 0; j < N; i++, j++) model.data[i] += vector.data[j];
+    };
+
+    template <
+        typename T, std::size_t MN, std::size_t MM,
+        typename V, std::size_t N
+    >
+    static constexpr inline void setPosition(mtp::matrix<T, MN, MM> &model, const mtp::vector<V, N> &vector) {
         static_assert(MM >= 1 || MN >= 1, "Size must be greater than one.");
         constexpr std::size_t POS_INDEX = (MN*MM)-MN;
         for(uint32_t i = POS_INDEX, j = 0; j < N; i++, j++) model.data[i] = vector.data[j];
     };
 
     template <
-        typename T, std::size_t MN, std::size_t MM, std::size_t M1Flag,
-        typename V, std::size_t N,  std::size_t M,  std::size_t M2Flag
+        typename T, std::size_t MN, std::size_t MM,
+        typename V, std::size_t N,  std::size_t M
     >
-    static constexpr inline void rotate(mtp::matrix<T, MN, MM, M1Flag> &model, const mtp::matrix<V, N, M, M2Flag> &matrix) {
-        static_assert(matrix.m == matrix.n, "N and M must be the same size.");
-        for(uint32_t i = 0, size = 0; i < matrix.size; size+=matrix.m-1) {
-            for(uint32_t j = 0; j < matrix.n; j++) {
-                model[size]=matrix[i];
-                i++;
+    static constexpr inline void setRotation(mtp::matrix<T, MN, MM> &model, const mtp::matrix<V, N, M> &matrix) {
+        static_assert(N == M, "Rotation matrix must be square.");
+        static_assert(MN >= N && MM >= M, "Target matrix must be large enough.");
+        
+        for (std::size_t row = 0; row < N; row++) {
+            for (std::size_t col = 0; col < M; col++) {
+                model.data[row * MN + col] = matrix.data[row * M + col];
             }
         }
     };

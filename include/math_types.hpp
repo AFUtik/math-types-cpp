@@ -4,28 +4,30 @@
 #include <type_traits>
 #include <algorithm>
 
+#define INIT_XYZW_RGBA \
+    x(this->data[0]), \
+    y(N>1 ? this->data[1] : this->data[0]), \
+    z(N>2 ? this->data[2] : this->data[0]), \
+    w(N>3 ? this->data[3] : this->data[0]), \
+    r(this->data[0]), \
+    g(N>1 ? this->data[1] : this->data[0]), \
+    b(N>2 ? this->data[2] : this->data[0]), \
+    a(N>3 ? this->data[3] : this->data[0]) \
+
+#define POW10(p, result) ((p == 0) ? result : power10(p - 1, result * 10))
+
 /* Namespace Math Type*/
 namespace mtp {
 
-static constexpr std::size_t power10(std::size_t p, std::size_t result = 1) {
-    return (p == 0) ? result : power10(p - 1, result * 10);
-}
-
 template <typename T, std::size_t Size, std::size_t Precition = 6>
 struct DataContainer {
-    static constexpr float epsilon = 1.0f / static_cast<float>(power10(Precition));
+    static constexpr float epsilon = 1.0f / static_cast<float>(POW10(Precition, 1));
     T data[Size];
     
-    constexpr DataContainer() : data{} 
-    {
-        
-    }
+    constexpr DataContainer() : data{} {}
 
     template <typename... Args, typename = std::enable_if_t<sizeof...(Args) == Size>>
-    constexpr DataContainer(Args... args) : data{static_cast<T>(args)...}
-    {
-
-    }
+    constexpr DataContainer(Args... args) : data{static_cast<T>(args)...} {}
 
     constexpr DataContainer(const T& scalar)
     {
@@ -48,105 +50,105 @@ struct DataContainer {
 
     constexpr inline const T& operator[](const std::size_t &index) const {return data[index];}
 
-    template<typename U = T, typename = std::enable_if_t<std::is_same_v<decltype(std::declval<U>() + std::declval<U>()), U>>>
+    template<typename U = T, typename = std::void_t<decltype(std::declval<U&>() + std::declval<U>()), U>>
     constexpr inline DataContainer operator+(const DataContainer& other) const {
         DataContainer result;
         for (size_t i = 0; i < Size; i++) result.data[i] = data[i] + other.data[i];
         return result;
     }
 
-    template<typename U = T, typename = std::enable_if_t<std::is_same_v<decltype(std::declval<U>() - std::declval<U>()), U>>>
+    template<typename U = T, typename = std::void_t<decltype(std::declval<U&>() - std::declval<U>()), U>>
     constexpr inline DataContainer operator-(const DataContainer& other) const {
         DataContainer result;
         for (size_t i = 0; i < Size; i++) result.data[i] = data[i] - other.data[i];
         return result;
     }
     
-    template<typename U = T, typename = std::enable_if_t<std::is_same_v<decltype(std::declval<U>() * std::declval<U>()), U>>>
+    template<typename U = T, typename = std::void_t<decltype(std::declval<U&>() * std::declval<U>()), U>>
     constexpr inline DataContainer operator*(const DataContainer& other) const {
         DataContainer result;
         for (size_t i = 0; i < Size; i++) result.data[i] = data[i] * other.data[i];
         return result;
     }
 
-    template<typename U = T, typename = std::enable_if_t<std::is_same_v<decltype(std::declval<U>() / std::declval<U>()), U>>>
+    template<typename U = T, typename = std::void_t<decltype(std::declval<U&>() / std::declval<U>()), U>>
     constexpr inline DataContainer operator/(const DataContainer& other) const {
         DataContainer result;
         for (size_t i = 0; i < Size; i++) result.data[i] = data[i] / other.data[i];
         return result;
     }
 
-    template<typename U = T, typename = std::enable_if_t<std::is_same_v<decltype(std::declval<U>() + std::declval<U>()), U>>>
+    template<typename U = T, typename = std::void_t<decltype(std::declval<U&>() + std::declval<U>()), U>>
     constexpr inline DataContainer operator+(T scalar) const {
         DataContainer result;
         for (size_t i = 0; i < Size; i++) result.data[i] = data[i] + scalar;
         return result;
     }
 
-    template<typename U = T, typename = std::enable_if_t<std::is_same_v<decltype(std::declval<U>() - std::declval<U>()), U>>>
+    template<typename U = T, typename = std::void_t<decltype(std::declval<U&>() - std::declval<U>()), U>>
     constexpr inline DataContainer operator-(T scalar) const {
         DataContainer result;
         for (size_t i = 0; i < Size; i++) result.data[i] = data[i] - scalar;
         return result;
     }
 
-    template<typename U = T, typename = std::enable_if_t<std::is_same_v<decltype(std::declval<U>() * std::declval<U>()), U>>>
+    template<typename U = T, typename = std::void_t<decltype(std::declval<U&>() * std::declval<U>()), U>>
     constexpr inline DataContainer operator*(T scalar) const {
         DataContainer result;
         for (size_t i = 0; i < Size; i++) result.data[i] = data[i] * scalar;
         return result;
     }
 
-    template<typename U = T, typename = std::enable_if_t<std::is_same_v<decltype(std::declval<U>() / std::declval<U>()), U>>>
+    template<typename U = T, typename = std::void_t<decltype(std::declval<U&>() / std::declval<U>()), U>>
     constexpr inline DataContainer operator/(T scalar) const {
         DataContainer result;
         for (size_t i = 0; i < Size; i++) result.data[i] = data[i] / scalar;
         return result;
     }
 
-    template<typename U = T, typename = std::enable_if_t<std::is_same_v<decltype(std::declval<U>() += std::declval<U>()), U>>>
+    template<typename U = T, typename = std::void_t<decltype(std::declval<U&>() += std::declval<U>()), U>>
     constexpr inline DataContainer& operator+=(const DataContainer& other) {
         for (size_t i = 0; i < Size; i++) data[i] += other.data[i];
         return *this;
     }
 
-    template<typename U = T, typename = std::enable_if_t<std::is_same_v<decltype(std::declval<U>() -= std::declval<U>()), U>>>
+    template<typename U = T, typename = std::void_t<decltype(std::declval<U&>() -= std::declval<U>()), U>>
     constexpr inline DataContainer& operator-=(const DataContainer& other) {
         for (size_t i = 0; i < Size; i++) data[i] -= other.data[i];
         return *this;
     }
 
-    template<typename U = T, typename = std::enable_if_t<std::is_same_v<decltype(std::declval<U>() *= std::declval<U>()), U>>>
+    template<typename U = T, typename = std::void_t<decltype(std::declval<U&>() *= std::declval<U>()), U>>
     constexpr inline DataContainer& operator*=(const DataContainer& other) {
         for (size_t i = 0; i < Size; i++) data[i] *= other.data[i];
         return *this;
     }
 
-    template<typename U = T, typename = std::enable_if_t<std::is_same_v<decltype(std::declval<U>() /= std::declval<U>()), U>>>
+    template<typename U = T, typename = std::void_t<decltype(std::declval<U&>() /= std::declval<U>()), U>>
     constexpr inline DataContainer& operator/=(const DataContainer& other) {
         for (size_t i = 0; i < Size; i++) data[i] /= other.data[i];
         return *this;
     }
 
-    template<typename U = T, typename = std::enable_if_t<std::is_same_v<decltype(std::declval<U>() += std::declval<U>()), U>>>
+    template<typename U = T, typename = std::void_t<decltype(std::declval<U&>() += std::declval<U>()), U>>
     constexpr inline DataContainer& operator+=(T scalar) {
         for (size_t i = 0; i < Size; i++) data[i] += scalar;
         return *this;
     }
 
-    template<typename U = T, typename = std::enable_if_t<std::is_same_v<decltype(std::declval<U>() -= std::declval<U>()), U>>>
+    template<typename U = T, typename = std::void_t<decltype(std::declval<U&>() -= std::declval<U>()), U>>
     constexpr inline DataContainer& operator-=(T scalar) {
         for (size_t i = 0; i < Size; i++) data[i] -= scalar;
         return *this;
     }
 
-    template<typename U = T, typename = std::enable_if_t<std::is_same_v<decltype(std::declval<U>() *= std::declval<U>()), U>>>
+    template<typename U = T, typename = std::void_t<decltype(std::declval<U&>() *= std::declval<U>()), U>>
     constexpr inline DataContainer& operator*=(T scalar) {
         for (size_t i = 0; i < Size; i++) data[i] *= scalar;
         return *this;
     }
 
-    template<typename U = T, typename = std::enable_if_t<std::is_same_v<decltype(std::declval<U>() /= std::declval<U>()), U>>>
+    template<typename U = T, typename = std::void_t<decltype(std::declval<U&>() /= std::declval<U>()), U>>
     constexpr inline DataContainer& operator/=(T scalar) {
         for (size_t i = 0; i < Size; i++) data[i] /= scalar;
         return *this;
@@ -154,7 +156,7 @@ struct DataContainer {
 
     /* Comparison operators. Returns only bitmask */
 
-    template<typename U = T, typename = std::enable_if_t<std::is_same_v<decltype(std::declval<U>() > std::declval<U>()), U>>>
+    template<typename U = T, typename = std::void_t<decltype(std::declval<U>() > std::declval<U>()), U>>
     constexpr inline int operator>(const DataContainer& other) {
         int bitmask = 0;
         for (size_t i = 0; i < Size; i++) {
@@ -164,7 +166,7 @@ struct DataContainer {
         return bitmask;
     }
 
-    template<typename U = T, typename = std::enable_if_t<std::is_same_v<decltype(std::declval<U>() < std::declval<U>()), U>>>
+    template<typename U = T, typename = std::void_t<decltype(std::declval<U&>() < std::declval<U>()), U>>
     constexpr inline int operator<(const DataContainer& other) {
         int bitmask = 0;
         for (size_t i = 0; i < Size; i++) {
@@ -174,7 +176,7 @@ struct DataContainer {
         return bitmask;
     }
 
-    template<typename U = T, typename = std::enable_if_t<std::is_same_v<decltype(std::declval<U>() == std::declval<U>()), U>>>
+    template<typename U = T, typename = std::void_t<decltype(std::declval<U&>() == std::declval<U>()), U>>
     constexpr inline int operator==(const DataContainer& other) {
         if constexpr(std::is_floating_point_v<T>) {
             int bitmask = 0;
@@ -193,7 +195,7 @@ struct DataContainer {
         }
     }
 
-    template<typename U = T, typename = std::enable_if_t<std::is_same_v<decltype(std::declval<U>() != std::declval<U>()), U>>>
+    template<typename U = T, typename = std::void_t<decltype(std::declval<U&>() != std::declval<U>()), U>>
     constexpr inline int operator!=(const DataContainer& other) {
         if constexpr(std::is_floating_point_v<T>) {
             int bitmask = 0;
@@ -213,15 +215,33 @@ struct DataContainer {
     }
 };
 
-template <typename T, std::size_t N, std::size_t Flag = 0>
+template <typename T, std::size_t N>
 struct vector : public DataContainer<T, N> {
+    static_assert(N!=0, "Vector size can't be zero.");
+
     static constexpr std::size_t size = N;
-    static constexpr std::size_t flag = Flag;
+    T &x, &y, &z, &w; /* XYZW */
+    T &r, &g, &b, &a; /* RGBA */
 
-    using DataContainer<T, N>::DataContainer;
+    constexpr vector() : DataContainer<T, N>(), INIT_XYZW_RGBA {}
 
-    constexpr vector(const DataContainer<T, N>& container) {
+    constexpr vector(T scalar) : DataContainer<T, N>(scalar), INIT_XYZW_RGBA {}
+
+    template <typename... Args, typename = std::enable_if_t<sizeof...(Args) == N>>
+    constexpr vector(Args... args) : DataContainer<T, N>(args...), INIT_XYZW_RGBA {}
+
+    /* Data assigning */
+
+    constexpr vector(const DataContainer<T, N>& container) : INIT_XYZW_RGBA 
+    {
         std::copy(container.data, container.data + size, this->data);
+    }
+
+    constexpr inline void operator=(const vector<T, N>& container) {
+        x = container.x; r = container.r;
+        y = container.y; g = container.g;
+        z = container.z; b = container.b;
+        w = container.w; a = container.a;
     }
 
     /* UTILS methods */
@@ -240,15 +260,7 @@ struct vector : public DataContainer<T, N> {
         return *this;
     }
 };
-using vector2ul = vector<unsigned long long, 2>;
-using vector3ul = vector<unsigned long long, 3>;
-using vector4ul = vector<unsigned long long, 4>;
-using vector2l = vector<long long, 2>;
-using vector3l = vector<long long, 3>;
-using vector4l = vector<long long, 4>;
-using vector2ui = vector<unsigned int, 2>;
-using vector3ui = vector<unsigned int, 3>;
-using vector4ui = vector<unsigned int, 4>;
+
 using vector2i = vector<int, 2>;
 using vector3i = vector<int, 3>;
 using vector4i = vector<int, 4>;
@@ -263,21 +275,13 @@ template <typename T> using vector2 = vector<T, 2>;
 template <typename T> using vector3 = vector<T, 3>;
 template <typename T> using vector4 = vector<T, 4>;
 
-/* DATACONTAINER USING WITH FLAGS */
-
-template <std::size_t Flag> using vector2df = vector<double, 2, Flag>;
-template <std::size_t Flag> using vector3df = vector<double, 3, Flag>;
-template <std::size_t Flag> using vector4df = vector<double, 4, Flag>;
-template <std::size_t Flag> using vector2ff = vector<float, 2, Flag>;
-template <std::size_t Flag> using vector3ff = vector<float, 3, Flag>;
-template <std::size_t Flag> using vector4ff = vector<float, 4, Flag>;
-
-template <typename T, std::size_t N, std::size_t M, std::size_t Flag = 0>
+template <typename T, std::size_t N, std::size_t M>
 struct matrix : public DataContainer<T, N*M> {
+    static_assert(N!=0 || M!=0, "Matrix size can't be zero.");
+
     static constexpr std::size_t size = N*M;
     static constexpr std::size_t n = N;
     static constexpr std::size_t m = M;
-    static constexpr std::size_t flag = Flag;
 
     using DataContainer<T, N*M>::DataContainer;
 
@@ -285,7 +289,7 @@ struct matrix : public DataContainer<T, N*M> {
         std::copy(container.data, container.data + size, this->data);
     }
 
-    /* Utils */
+    /* UTILS methods */
 
     template<typename CastType>
     static constexpr inline matrix<CastType, N, M> cast(const matrix<T, N, M> &container) {
@@ -316,14 +320,9 @@ using matrix4f = matrix<float, 4, 4>;
 using matrix3f = matrix<float, 3, 3>;
 using matrix2f = matrix<float, 2, 2>;
 
-/* matrix using with flags */
-
-template <std::size_t Flag> using matrix4df = matrix<double, 4, 4, Flag>;
-template <std::size_t Flag> using matrix3df = matrix<double, 3, 3, Flag>;
-template <std::size_t Flag> using matrix2df = matrix<double, 2, 2, Flag>;
-template <std::size_t Flag> using matrix4ff = matrix<float, 4, 4, Flag>;
-template <std::size_t Flag> using matrix3ff = matrix<float, 3, 3, Flag>;
-template <std::size_t Flag> using matrix2ff = matrix<float, 2, 2, Flag>;
+template <typename T> using matrix4 = matrix<T, 4, 4>;
+template <typename T> using matrix3 = matrix<T, 3, 3>;
+template <typename T> using matrix2 = matrix<T, 2, 2>;
 
 }
 
