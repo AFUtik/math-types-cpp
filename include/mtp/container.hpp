@@ -2,10 +2,11 @@
 #define MATH_TYPES_HPP
 
 #include <type_traits>
-#include <algorithm>
 #include <cstring>
+#include <algorithm>
 
 #include "constfunc.hpp"
+#include <iostream>
 
 /* Namespace Math Type*/
 
@@ -24,9 +25,21 @@ struct DataContainer {
     template <typename... Args, typename = std::enable_if_t<sizeof...(Args) == Size>>
     constexpr DataContainer(Args... args) : data{static_cast<T>(args)...} {}
 
+    template <typename U = T, typename = std::enable_if_t<std::is_arithmetic_v<U>>>
     constexpr DataContainer(const T& scalar)
     {
         for(std::size_t i = 0; i < Size; i++) data[i] = scalar;
+    }
+
+    ~DataContainer() {
+        if constexpr (std::is_pointer_v<T>) {
+            for (std::size_t i = 0; i < Size; i++) {
+                if(data[i]!=nullptr) {
+                    delete data[i];
+                    data[i] = nullptr;
+                }
+            }
+        }
     }
 
     using data_iterator = T*;
