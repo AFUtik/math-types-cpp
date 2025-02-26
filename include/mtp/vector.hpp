@@ -26,8 +26,13 @@ struct vector : public DataContainer<T, N, Precition> {
 
     constexpr vector(T scalar) : DataContainer<T, N, Precition>(scalar), INIT_XYZW_RGBA {}
 
-    template <typename... Args, typename = std::enable_if_t<sizeof...(Args) == N>>
-    constexpr vector(Args... args) : DataContainer<T, N, Precition>(args...), INIT_XYZW_RGBA {}
+    constexpr vector(vector&&) noexcept = default;
+
+    template <typename... Args, typename = std::enable_if_t<sizeof...(Args) == N && !std::is_reference_v<T>>>
+    constexpr vector(Args&&... args) : DataContainer<T, N, Precition>(args...), INIT_XYZW_RGBA {}
+
+    template <typename U = T, typename... Args, typename = std::enable_if_t<sizeof...(Args) == N>>
+    constexpr vector(Args&... args) : DataContainer<T, N, Precition>(args...), INIT_XYZW_RGBA {}
 
     template <std::size_t NN, typename... Args, typename = std::enable_if_t<sizeof...(Args) + NN == N>>
     constexpr vector(const vector<T, NN> &vec, const Args&... args) : INIT_XYZW_RGBA {
@@ -39,7 +44,6 @@ struct vector : public DataContainer<T, N, Precition> {
     }
 
     /* Data assigning */
-
     constexpr vector(const DataContainer<T, N>& container) : INIT_XYZW_RGBA 
     {
         if constexpr (std::is_class_v<T>) std::copy(container.data, container.data+N, this->data);
@@ -47,6 +51,8 @@ struct vector : public DataContainer<T, N, Precition> {
     }
 
     constexpr inline void operator=(const vector<T, N>& container) {
+        
+
         x = container.x; r = container.r;
         y = container.y; g = container.g;
         z = container.z; b = container.b;
@@ -64,30 +70,16 @@ struct vector : public DataContainer<T, N, Precition> {
 };
 
 /* static methods for vector */
-struct vector_st {
-    template<typename CastType, typename T, std::size_t N>
-    static constexpr inline vector<CastType, N> cast(const vector<T, N> &container) {
-        vector<CastType, N> new_container;
-        for(std::size_t i = 0; i < N; i++) new_container.data[i] = static_cast<CastType>(container.data[i]);
-        return new_container;
-    }
+template<typename T, std::size_t N>
+static constexpr inline vector<T, N> normalize(const vector<T, N> &vec) {
+    vector<T, N> new_container;
+    double length = 0.0f;
+    for(size_t i = 0; i < N; i++) length += vec.data[i]*vec.data[i];
+    length = mtp::sqrt<double>(length);
+    for(size_t i = 0; i < N; i++) new_container.data[i]/=length;
+    return new_container;
+}
 
-    template<typename T, std::size_t N>
-    static constexpr inline vector<T, N> normalize(const vector<T, N> &vec) {
-        vector<T, N> new_container;
-        double length = 0.0f;
-        for(size_t i = 0; i < N; i++) length += vec.data[i]*vec.data[i];
-        length = mtp::sqrt<double>(length);
-        for(size_t i = 0; i < N; i++) new_container.data[i]/=length;
-        return new_container;
-    }
-};
-
-/* the vector that stores pointers and frees them */
-template <typename T, std::size_t N>
-struct vector_ptr : public DynamicDataContainerWrapper<T, N> {
-    static_assert(N!=0, "Vector size can't be zero.");
-};
 
 using vector2i = vector<int, 2>;
 using vector3i = vector<int, 3>;
