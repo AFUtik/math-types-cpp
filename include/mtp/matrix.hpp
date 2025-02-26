@@ -10,11 +10,6 @@ template <typename T, std::size_t N, std::size_t M = N>
 struct matrix : public DataContainer<T, N*M> {
     static_assert(N!=0 || M!=0, "Matrix size can't be zero.");
 
-    //static constexpr std::size_t n = N;
-    //static constexpr std::size_t m = M;
-
-    // vector<T*, N> rows[M];
-
     using DataContainer<T, N*M>::DataContainer;
 
     constexpr matrix(const DataContainer<T, N*M>& container) {
@@ -22,11 +17,22 @@ struct matrix : public DataContainer<T, N*M> {
     }
 
     /**
+    * @brief Converts matrix row to vector.
+    * @param row index of a row. (starts with zero)
+    */
+    constexpr inline vector<T*, N> vector_view(const std::size_t &row) {
+        vector<T*, N> new_vector;
+        for(size_t i = 0; i < N; i++) new_vector[i] = &this->data[row*N+i];
+        return new_vector;
+    }
+
+    /**
     * @brief Gets an object by xy cordinates.
     * @param x Width
     * @param y Height
+    * @return Returns T object.
     */
-    constexpr inline const T& get(const size_t& x, const size_t& y) {
+    constexpr inline T& get(const size_t& x, const size_t& y) {
         return this->data[y*N+x];
     }
 

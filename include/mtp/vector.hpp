@@ -26,6 +26,8 @@ struct vector : public DataContainer<T, N, Precition> {
 
     constexpr vector(T scalar) : DataContainer<T, N, Precition>(scalar), INIT_XYZW_RGBA {}
 
+    constexpr vector(vector&&) noexcept = default;
+
     template <typename... Args, typename = std::enable_if_t<sizeof...(Args) == N && !std::is_reference_v<T>>>
     constexpr vector(Args&&... args) : DataContainer<T, N, Precition>(args...), INIT_XYZW_RGBA {}
 
