@@ -13,10 +13,10 @@ struct transform {
 
 template<typename T>
 struct transform2 : public transform<T> {
-    vector2<T&> position = {&this->mm[12], &this->mm[13]};
-    matrix2<T&> rot_mat  = {&this->mm[0], &this->mm[1],
+    vector2<T*> position = {&this->mm[12], &this->mm[13]};
+    matrix2<T*> rot_mat  = {&this->mm[0], &this->mm[1],
                             &this->mm[4], &this->mm[5]};               
-    vector2<T&> scale    = {&this->mm[3], &this->mm[7]};
+    vector2<T*> scale    = {&this->mm[3], &this->mm[7]};
 };
 
 
