@@ -8,13 +8,15 @@ namespace mtp {
 
 template <typename T, std::size_t N, std::size_t M = N>
 struct matrix : public DataContainer<T, N*M> {
-    static_assert(N!=0 || M!=0, "Matrix size can't be zero.");
-
     using DataContainer<T, N*M>::DataContainer;
 
-    constexpr matrix(const DataContainer<T, N*M>& container) {
-        std::copy(container.data, container.data + this->size, this->data);
-    }
+    constexpr matrix(const matrix&) noexcept = default;
+
+    constexpr matrix(const DataContainer<T, N>& container) {std::copy(container.data, container.data+N, this->data);}
+
+    //constexpr matrix(const DataContainer<T, N*M>& container) {
+    //    std::copy(container.data, container.data + this->size, this->data);
+    //}
 
     /**
     * @brief Converts matrix row to vector.
@@ -36,17 +38,70 @@ struct matrix : public DataContainer<T, N*M> {
         return this->data[y*N+x];
     }
 
-    /** 
-    * @brief The product of matrix and vector.
-    * @return Returns a multiplied vector by matrix.
-    */
-    constexpr inline vector<T, N> operator*(const vector<T, N>& vec) {
+    /* vector-matrix multiplication - O(N^2) */
+    vector<T, N> operator*(const DataContainer<T, N>& vec) {
         vector<T, N> new_vector;
         for (size_t i = 0; i < M; i++) {
             for (size_t j = 0; j < N; j++) new_vector.data[i]+=vec.data[j]*this->data[i * N + j];
         }
         return new_vector;
-    }
+    } /* M!=N - O(M*N) | M==N - O(N^2) */
+
+    /* classic matrix multiplication */
+    matrix<T, N, M> operator*(const DataContainer<T, N*M>& mat) {
+        matrix<T, N, M> new_mat;
+        for (size_t i = 0; i < M; i++) {
+            size_t index = i*N;
+            for (size_t j = 0; j < N; j++) {
+                for (size_t k = 0; k < N; k++) {
+                    new_mat.data[index+j]+=this->data[index+k] * mat.data[k*N+j];
+                }
+            }
+        }
+        return new_mat;
+    } /* M!=N - O(M*N^2) | M==N - O(N^3) */
+
+    /* classic matrix sum */
+    matrix<T, N, M> operator+(const DataContainer<T, N*M>& mat) {
+        matrix<T, N, M> new_mat;
+        for (size_t i = 0; i < M; i++) {
+            size_t index = i*N;
+            for (size_t j = 0; j < N; j++) {
+                for (size_t k = 0; k < N; k++) {
+                    new_mat.data[index+j]+=this->data[index+k] + mat.data[k*N+j];
+                }
+            }
+        }
+        return new_mat;
+    } /* M!=N - O(M*N^2) | M==N - O(N^3) */
+
+    /* classic matrix subtract */
+    matrix<T, N, M> operator-(const DataContainer<T, N*M>& mat) {
+        vector<T, N, M> new_mat;
+        for (size_t i = 0; i < M; i++) {
+            size_t index = i*N;
+            for (size_t j = 0; j < N; j++) {
+                for (size_t k = 0; k < N; k++) {
+                    new_mat.data[index+j]+=this->data[index+k] - mat.data[k*N+j];
+                }
+            }
+        }
+        return new_mat;
+    } /* M!=N - O(M*N^2) | M==N - O(N^3) */
+
+    /* classic matrix divide */
+    matrix<T, N, M> operator/(const DataContainer<T, N*M>& mat) {
+        vector<T, N, M> new_mat;
+        for (size_t i = 0; i < M; i++) {
+            size_t index = i*N;
+            for (size_t j = 0; j < N; j++) {
+                for (size_t k = 0; k < N; k++) {
+                    new_mat.data[index+j]+=this->data[index+k] / mat.data[k*N+j];
+                }
+            }
+        }
+        return new_mat;
+    } /* M!=N - O(M*N^2) | M==N - O(N^3) */
 };
 
 

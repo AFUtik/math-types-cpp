@@ -13,18 +13,26 @@ namespace mtp {
 
 template <typename T, std::size_t Size, std::size_t Precition = 6>
 struct DataContainer {
-    std::conditional_t<std::is_reference_v<T>, std::reference_wrapper<std::remove_reference_t<T>>, T> data[Size];
+    static_assert(Size!=0, "DataContainer Size can't be zero.");
+    T data[Size];
 
+    static constexpr float EPSILON = 1.0f / static_cast<float>(pow10(Precition));
     static constexpr std::size_t MEMORY_SIZE = Size*sizeof(T);
     static constexpr std::size_t size = Size;
-    static constexpr float EPSILON = 1.0f / static_cast<float>(pow10(Precition));
     
-    constexpr DataContainer() : data{} {
+    constexpr DataContainer() : data{} 
+    {
 
     }
 
+    constexpr DataContainer(T (&arr)[Size])
+    {  
+        std::copy(arr, arr+Size, data);
+    }
+
     template <typename... Args, typename = std::enable_if_t<sizeof...(Args) == Size>>
-    constexpr DataContainer(Args&&... args) : data{static_cast<T>(args)...} {
+    constexpr DataContainer(Args&&... args) : data{static_cast<T>(args)...} 
+    {
 
     }
 
@@ -33,8 +41,6 @@ struct DataContainer {
     {
         for(std::size_t i = 0; i < Size; i++) data[i] = scalar;
     }
-
-    ~DataContainer() = default;
 
     using data_iterator  = std::remove_reference_t<T>*;
     using data_citerator = const std::remove_reference_t<T>*;
@@ -217,7 +223,6 @@ static constexpr inline DataContainer<CastType, Size> cast(const DataContainer<T
     for(std::size_t i = 0; i < Size; i++) new_container.data[i] = static_cast<CastType>(container.data[i]);
     return new_container;
 }
-
 
 }
 

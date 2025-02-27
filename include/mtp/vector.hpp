@@ -17,16 +17,12 @@ namespace mtp {
 
 template <typename T, std::size_t N, std::size_t Precition = 6>
 struct vector : public DataContainer<T, N, Precition> {
-    static_assert(N!=0, "Vector size can't be zero.");
-
     T &x, &y, &z, &w;
     T &r, &g, &b, &a;
 
     constexpr vector() : DataContainer<T, N, Precition>(), INIT_XYZW_RGBA {}
 
     constexpr vector(T scalar) : DataContainer<T, N, Precition>(scalar), INIT_XYZW_RGBA {}
-
-    constexpr vector(vector&&) noexcept = default;
 
     template <typename... Args, typename = std::enable_if_t<sizeof...(Args) == N && !std::is_reference_v<T>>>
     constexpr vector(Args&&... args) : DataContainer<T, N, Precition>(args...), INIT_XYZW_RGBA {}
@@ -36,28 +32,17 @@ struct vector : public DataContainer<T, N, Precition> {
 
     template <std::size_t NN, typename... Args, typename = std::enable_if_t<sizeof...(Args) + NN == N>>
     constexpr vector(const vector<T, NN> &vec, const Args&... args) : INIT_XYZW_RGBA {
-        if constexpr (std::is_class_v<T>) std::copy(vec.data, vec.data+NN, this->data);
-        else memcpy(this->data, vec.data, vec.MEMORY_SIZE);
+        std::copy(vec.data, vec.data+NN, this->data);
 
         std::size_t i = NN;
         ((this->data[i++] = args), ...);
     }
 
     /* Data assigning */
-    constexpr vector(const DataContainer<T, N>& container) : INIT_XYZW_RGBA 
-    {
-        if constexpr (std::is_class_v<T>) std::copy(container.data, container.data+N, this->data);
-        else memcpy(this->data, container.data, this->MEMORY_SIZE);
-    }
 
-    constexpr inline void operator=(const vector<T, N>& container) {
-        
+    constexpr vector(const vector&) noexcept = default;
 
-        x = container.x; r = container.r;
-        y = container.y; g = container.g;
-        z = container.z; b = container.b;
-        w = container.w; a = container.a;
-    }
+    constexpr vector(const DataContainer<T, N>& container) : INIT_XYZW_RGBA {std::copy(container.data, container.data+N, this->data);}
 
     /* UTILS methods */
     constexpr inline vector& normalize() {
