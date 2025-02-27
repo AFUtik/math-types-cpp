@@ -47,6 +47,33 @@ struct matrix : public DataContainer<T, N*M> {
         return new_vector;
     } /* M!=N - O(M*N) | M==N - O(N^2) */
 
+    /* vector-matrix devision - O(N^2) */
+    vector<T, N> operator/(const DataContainer<T, N>& vec) {
+        vector<T, N> new_vector;
+        for (size_t i = 0; i < M; i++) {
+            for (size_t j = 0; j < N; j++) new_vector.data[i]+=vec.data[j]/this->data[i * N + j];
+        }
+        return new_vector;
+    } /* M!=N - O(M*N) | M==N - O(N^2) */
+
+    /* vector-matrix sum - O(N^2) */
+    vector<T, N> operator+(const DataContainer<T, N>& vec) {
+        vector<T, N> new_vector;
+        for (size_t i = 0; i < M; i++) {
+            for (size_t j = 0; j < N; j++) new_vector.data[i]+=vec.data[j]+this->data[i * N + j];
+        }
+        return new_vector;
+    } /* M!=N - O(M*N) | M==N - O(N^2) */
+
+    /* vector-matrix subtraction - O(N^2) */
+    vector<T, N> operator-(const DataContainer<T, N>& vec) {
+        vector<T, N> new_vector;
+        for (size_t i = 0; i < M; i++) {
+            for (size_t j = 0; j < N; j++) new_vector.data[i]+=vec.data[j]-this->data[i * N + j];
+        }
+        return new_vector;
+    } /* M!=N - O(M*N) | M==N - O(N^2) */
+
     /* classic matrix multiplication */
     matrix<T, N, M> operator*(const DataContainer<T, N*M>& mat) {
         matrix<T, N, M> new_mat;
@@ -75,7 +102,7 @@ struct matrix : public DataContainer<T, N*M> {
         return new_mat;
     } /* M!=N - O(M*N^2) | M==N - O(N^3) */
 
-    /* classic matrix subtract */
+    /* classic matrix subtraction */
     matrix<T, N, M> operator-(const DataContainer<T, N*M>& mat) {
         vector<T, N, M> new_mat;
         for (size_t i = 0; i < M; i++) {
@@ -89,7 +116,7 @@ struct matrix : public DataContainer<T, N*M> {
         return new_mat;
     } /* M!=N - O(M*N^2) | M==N - O(N^3) */
 
-    /* classic matrix divide */
+    /* classic matrix division */
     matrix<T, N, M> operator/(const DataContainer<T, N*M>& mat) {
         vector<T, N, M> new_mat;
         for (size_t i = 0; i < M; i++) {
@@ -102,6 +129,7 @@ struct matrix : public DataContainer<T, N*M> {
         }
         return new_mat;
     } /* M!=N - O(M*N^2) | M==N - O(N^3) */
+    
 };
 
 
