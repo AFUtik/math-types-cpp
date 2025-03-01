@@ -42,8 +42,8 @@ struct DataContainer {
         for(std::size_t i = 0; i < Size; i++) data[i] = scalar;
     }
 
-    using data_iterator  = std::remove_reference_t<T>*;
-    using data_citerator = const std::remove_reference_t<T>*;
+    using data_iterator  = T*;
+    using data_citerator = const T*;
 
     constexpr data_iterator begin() noexcept { return data; }
     constexpr data_iterator end() noexcept { return data + Size; }
@@ -79,25 +79,25 @@ struct DataContainer {
         return result;
     }
 
-    constexpr inline DataContainer operator+(T scalar) const {
+    constexpr inline DataContainer operator+(const T &scalar) const {
         DataContainer result;
         for (size_t i = 0; i < Size; i++) result.data[i] = data[i] + scalar;
         return result;
     }
 
-    constexpr inline DataContainer operator-(T scalar) const {
+    constexpr inline DataContainer operator-(const T &scalar) const {
         DataContainer result;
         for (size_t i = 0; i < Size; i++) result.data[i] = data[i] - scalar;
         return result;
     }
 
-    constexpr inline DataContainer operator*(T scalar) const {
+    constexpr inline DataContainer operator*(const T &scalar) const {
         DataContainer result;
         for (size_t i = 0; i < Size; i++) result.data[i] = data[i] * scalar;
         return result;
     }
 
-    constexpr inline DataContainer operator/(T scalar) const {
+    constexpr inline DataContainer operator/(const T &scalar) const {
         DataContainer result;
         for (size_t i = 0; i < Size; i++) result.data[i] = data[i] / scalar;
         return result;
@@ -119,25 +119,17 @@ struct DataContainer {
         for (size_t i = 0; i < Size; i++) data[i] /= other.data[i];
     }
 
-    constexpr inline void operator+=(T scalar) {
-        for (size_t i = 0; i < Size; i++) data[i] += scalar;
-    }
+    constexpr inline void operator+=(const T &scalar) {for (size_t i = 0; i < Size; i++) data[i] += scalar;}
 
-    constexpr inline void operator-=(T scalar) {
-        for (size_t i = 0; i < Size; i++) data[i] -= scalar;
-    }
+    constexpr inline void operator-=(const T &scalar) {for (size_t i = 0; i < Size; i++) data[i] -= scalar;}
 
-    constexpr inline void operator*=(T scalar) {
-        for (size_t i = 0; i < Size; i++) data[i] *= scalar;
-    }
+    constexpr inline void operator*=(const T &scalar) {for (size_t i = 0; i < Size; i++) data[i] *= scalar;}
 
-    constexpr inline void operator/=(T scalar) {
-        for (size_t i = 0; i < Size; i++) data[i] /= scalar;
-    }
+    constexpr inline void operator/=(const T &scalar) {for (size_t i = 0; i < Size; i++) data[i] /= scalar;}
 
     /* Comparison operators. Returns only bitmask */
 
-    constexpr inline int operator>=(const DataContainer<T, Size>& other) {
+    constexpr int operator>=(const DataContainer<T, Size>& other) {
         int bitmask = 0;
         for (size_t i = 0; i < Size; i++) {
             if(data[i] >= other.data[i]) bitmask|=1;
@@ -146,7 +138,7 @@ struct DataContainer {
         return bitmask;
     }
 
-    constexpr inline int operator<=(const DataContainer<T, Size>& other) {
+    constexpr int operator<=(const DataContainer<T, Size>& other) {
         int bitmask = 0;
         for (size_t i = 0; i < Size; i++) {
             if(data[i] <= other.data[i]) bitmask|=1;
@@ -155,7 +147,7 @@ struct DataContainer {
         return bitmask;
     }
 
-    constexpr inline int operator>(const DataContainer<T, Size>& other) {
+    constexpr int operator>(const DataContainer<T, Size>& other) {
         int bitmask = 0;
         for (size_t i = 0; i < Size; i++) {
             if(data[i] > other.data[i]) bitmask|=1;
@@ -164,7 +156,7 @@ struct DataContainer {
         return bitmask;
     }
 
-    constexpr inline int operator<(const DataContainer<T, Size>& other) {
+    constexpr int operator<(const DataContainer<T, Size>& other) {
         int bitmask = 0;
         for (size_t i = 0; i < Size; i++) {
             if(data[i] < other.data[i]) bitmask|=1;
@@ -173,7 +165,7 @@ struct DataContainer {
         return bitmask;
     }
 
-    constexpr inline int operator==(const DataContainer<T, Size>& other) {
+    constexpr int operator==(const DataContainer<T, Size>& other) {
         if constexpr(std::is_floating_point_v<T>) {
             int bitmask = 0;
             for (size_t i = 0; i < Size; i++) {
@@ -209,7 +201,77 @@ struct DataContainer {
     }
 };
 
-template<std::size_t NewSize, typename T, std::size_t OldSize>
+template <typename T>
+struct DynamicDataContainer {
+    T* data;
+    std::size_t size;
+
+    DynamicDataContainer(const std::size_t& size) : data(new T[size]()), size(size) 
+    {
+
+    }
+
+    DynamicDataContainer(const std::size_t& size, const T& scalar) : data(new T[size]), size(size) 
+    {
+        for(std::size_t i = 0; i < size; i++) data[i] = scalar;
+    }
+
+    DynamicDataContainer() : data(nullptr), size(0) 
+    {
+
+    }
+
+    ~DynamicDataContainer() {
+        delete[] data;
+    }
+
+    using data_iterator  = T*;
+    using data_citerator = const T*;
+
+    constexpr data_iterator begin() noexcept { return data; }
+    constexpr data_iterator end() noexcept { return data + size; }
+
+    constexpr data_citerator cbegin() const noexcept { return data; }
+    constexpr data_citerator cend() const noexcept { return data + size; }
+
+    constexpr inline T& operator[](const std::size_t &index) {return data[index];}
+
+    constexpr inline const T& operator[](const std::size_t &index) const {return data[index];}
+
+    inline void operator+=(const T &scalar) {for (size_t i = 0; i < size; i++) data[i] += scalar;}
+
+    inline void operator-=(const T &scalar) {for (size_t i = 0; i < size; i++) data[i] -= scalar;}
+
+    inline void operator*=(const T &scalar) {for (size_t i = 0; i < size; i++) data[i] *= scalar;}
+
+    inline void operator/=(const T &scalar) {for (size_t i = 0; i < size; i++) data[i] /= scalar;}
+
+    inline DynamicDataContainer operator+(const T &scalar) const {
+        DynamicDataContainer result(size);
+        for (size_t i = 0; i < size; i++) result.data[i] = data[i] + scalar;
+        return result;
+    }
+
+    inline DynamicDataContainer operator-(const T &scalar) const {
+        DynamicDataContainer result(size);
+        for (size_t i = 0; i < size; i++) result.data[i] = data[i] - scalar;
+        return result;
+    }
+
+    inline DynamicDataContainer operator*(const T &scalar) const {
+        DynamicDataContainer result(size);
+        for (size_t i = 0; i < size; i++) result.data[i] = data[i] * scalar;
+        return result;
+    }
+
+    inline DynamicDataContainer operator/(const T &scalar) const {
+        DynamicDataContainer result(size);
+        for (size_t i = 0; i < size; i++) result.data[i] = data[i] / scalar;
+        return result;
+    }
+};
+
+template <std::size_t NewSize, typename T, std::size_t OldSize>
 static constexpr inline DataContainer<T, NewSize> resize(const DataContainer<T, OldSize> &container) {
     DataContainer<T, NewSize> new_container;
     
@@ -217,7 +279,7 @@ static constexpr inline DataContainer<T, NewSize> resize(const DataContainer<T, 
     return new_container;
 }
 
-template<typename T, typename CastType, std::size_t Size>
+template <typename T, typename CastType, std::size_t Size>
 static constexpr inline DataContainer<CastType, Size> cast(const DataContainer<T, Size> &container) {
     DataContainer<CastType, Size> new_container;
     for(std::size_t i = 0; i < Size; i++) new_container.data[i] = static_cast<CastType>(container.data[i]);

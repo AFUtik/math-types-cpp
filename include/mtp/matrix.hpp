@@ -129,18 +129,55 @@ struct matrix : public DataContainer<T, N*M> {
         }
         return new_mat;
     } /* M!=N - O(M*N^2) | M==N - O(N^3) */
-    
 };
 
+template <typename T>
+struct dynamic_matrix : DynamicDataContainer<T> {
+    std::size_t n = 0;
+    std::size_t m = 0;
+
+    using DynamicDataContainer<T>::DynamicDataContainer;
+
+    dynamic_matrix(const std::size_t &rows, const std::size_t &cols) : n(rows), m(cols),
+        DynamicDataContainer<T>(rows*cols)
+    {
+
+    }
+
+    dynamic_matrix(const std::size_t &rows, const std::size_t &cols, const T& scalar) : n(rows), m(cols),
+        DynamicDataContainer<T>(rows*cols, scalar)
+    {
+        
+    }
+
+    /**
+    * @brief Gets an object by xy cordinates.
+    * @param x Width
+    * @param y Height
+    * @return Returns T object.
+    */
+    inline T& get(const size_t& x, const size_t& y) {
+        return this->data[y*n+x];
+    }
+
+    /* resizes 2-dimensional matrix and resets all values in array to zero */
+    void resize(const std::size_t &rows, const std::size_t &cols) {
+        n = rows;
+        m = cols;
+
+        if(this->data != nullptr) delete[] this->data; 
+        this->data = new T[rows*cols]();
+    }
+};
 
 template <typename T, std::size_t W, std::size_t H = W, std::size_t V = H>
-struct matrix3D : public DataContainer<T, W*H*V> {
+struct matrix3d : public DataContainer<T, W*H*V> {
     static_assert(W!=0 || H!=0 || V!=0, "Matrix size can't be zero.");
     static constexpr size_t WH = W*H; /* The size of the layer of 3d matrix. */
 
     using DataContainer<T, W*H*V>::DataContainer;
 
-    constexpr matrix3D(const DataContainer<T, W*H*V>& container) {
+    constexpr matrix3d(const DataContainer<T, W*H*V>& container) {
         std::copy(container.data, container.data + this->size, this->data);
     }
 
@@ -157,14 +194,52 @@ struct matrix3D : public DataContainer<T, W*H*V> {
     }
 };
 
+template <typename T>
+struct dynamic_matrix3d : DynamicDataContainer<T> {
+    std::size_t w = 0;
+    std::size_t h = 0;
+    std::size_t v = 0;
+
+    using DynamicDataContainer<T>::DynamicDataContainer;
+
+    dynamic_matrix3d(const std::size_t &width, const std::size_t &height, const std::size_t &volume) : 
+        w(width), h(height), v(volume), DynamicDataContainer<T>(width*height*volume)
+    {
+
+    }
+
+    dynamic_matrix3d(const std::size_t &width, const std::size_t &height, const std::size_t &volume, const T& scalar) : 
+        w(width), h(height), v(volume), DynamicDataContainer<T>(width*height*volume, scalar)
+    {
+        
+    }
+
+    /**
+    * @brief Gets an object by xyz cordinates.
+    * @param x Width
+    * @param y Height
+    * @param z Volume
+    */
+    constexpr inline const T& get(const size_t& x, const size_t& y, const size_t& z) {
+        return this->data[y*w*h+z*w+x];
+    }
+
+    /* resizes 3-dimensional matrix and resets all values in array to zero */
+    void resize(const std::size_t &width, const std::size_t &height, const std::size_t &volume) {
+        this->w = width;
+        this->h = height;
+        this->v = volume;
+
+        if(this->data != nullptr) delete[] this->data; 
+        this->data = new T[width*height*volume]();
+    }
+};
+
 using matrix4x3 = matrix<float, 4, 3>;
 using matrix3x4 = matrix<float, 3, 4>;
 using matrix3x2 = matrix<float, 3, 2>;
 using matrix2x3 = matrix<float, 2, 3>;
 
-using matrix4d = matrix<double, 4, 4>;
-using matrix3d = matrix<double, 3, 3>;
-using matrix2d = matrix<double, 2, 2>;
 using matrix4f = matrix<float, 4, 4>;
 using matrix3f = matrix<float, 3, 3>;
 using matrix2f = matrix<float, 2, 2>;
