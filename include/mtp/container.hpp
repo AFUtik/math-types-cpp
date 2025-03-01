@@ -205,24 +205,33 @@ template <typename T>
 struct DynamicDataContainer {
     T* data;
     std::size_t size;
+    
+    DynamicDataContainer() : data(nullptr), size(0) 
+    {
+
+    }
 
     DynamicDataContainer(const std::size_t& size) : data(new T[size]()), size(size) 
     {
 
     }
 
+    
+    DynamicDataContainer(const std::size_t& size, T* array) : data(array), size(size)
+    {
+        
+    }
+    
     DynamicDataContainer(const std::size_t& size, const T& scalar) : data(new T[size]), size(size) 
     {
         for(std::size_t i = 0; i < size; i++) data[i] = scalar;
     }
-
-    DynamicDataContainer() : data(nullptr), size(0) 
-    {
-
-    }
-
+    
     ~DynamicDataContainer() {
-        delete[] data;
+        if(data) {
+            delete[] data;
+            data = nullptr;
+        }
     }
 
     using data_iterator  = T*;

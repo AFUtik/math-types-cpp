@@ -235,6 +235,28 @@ struct dynamic_matrix3d : DynamicDataContainer<T> {
     }
 };
 
+template <typename T, std::size_t N, std::size_t M>
+constexpr matrix<T, M, N> transpose(const matrix<T, N, M>& mat) {
+    matrix<T, M, N> new_matrix;
+    for(std::size_t i = 0; i < M; i++) {
+        for(std::size_t j = 0; j < N; j++) {
+            new_matrix.data[j*N+i] = mat.data[i*N+j];
+        }
+    }
+    return new_matrix;
+}
+
+template <typename T>
+dynamic_matrix<T> transpose(const dynamic_matrix<T>& mat) {
+    dynamic_matrix<T> new_matrix(mat.m, mat.n);
+    for(std::size_t i = 0; i < mat.m; i++) {
+        for(std::size_t j = 0; j < mat.n; j++) {
+            new_matrix.data[j*mat.n+i] = mat.data[i*mat.n+j];
+        }
+    }
+    return new_matrix;
+}
+
 using matrix4x3 = matrix<float, 4, 3>;
 using matrix3x4 = matrix<float, 3, 4>;
 using matrix3x2 = matrix<float, 3, 2>;
