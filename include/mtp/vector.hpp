@@ -24,11 +24,8 @@ struct vector : public DataContainer<T, N, Precition> {
 
     constexpr vector(T scalar) : DataContainer<T, N, Precition>(scalar), INIT_XYZW_RGBA {}
 
-    template <typename... Args, typename = std::enable_if_t<sizeof...(Args) == N && !std::is_reference_v<T>>>
-    constexpr vector(Args&&... args) : DataContainer<T, N, Precition>(args...), INIT_XYZW_RGBA {}
-
     template <typename U = T, typename... Args, typename = std::enable_if_t<sizeof...(Args) == N>>
-    constexpr vector(Args&... args) : DataContainer<T, N, Precition>(args...), INIT_XYZW_RGBA {}
+    constexpr vector(const Args&... args) : DataContainer<T, N, Precition>(args...), INIT_XYZW_RGBA {}
 
     template <std::size_t NN, typename... Args, typename = std::enable_if_t<sizeof...(Args) + NN == N>>
     constexpr vector(const vector<T, NN> &vec, const Args&... args) : INIT_XYZW_RGBA {
@@ -43,6 +40,13 @@ struct vector : public DataContainer<T, N, Precition> {
     constexpr vector(const vector&) noexcept = default;
 
     constexpr vector(const DataContainer<T, N>& container) : INIT_XYZW_RGBA {std::copy(container.data, container.data+N, this->data);}
+
+    constexpr inline void operator=(const vector<T, N>& container) {
+        x = container.x; r = container.r;
+        y = container.y; g = container.g;
+        z = container.z; b = container.b;
+        w = container.w; a = container.a;
+    }
 
     /* UTILS methods */
     constexpr inline vector& normalize() {
@@ -64,7 +68,6 @@ static constexpr inline vector<T, N> normalize(const vector<T, N> &vec) {
     for(size_t i = 0; i < N; i++) new_container.data[i]/=length;
     return new_container;
 }
-
 
 using vector2i = vector<int, 2>;
 using vector3i = vector<int, 3>;

@@ -31,7 +31,7 @@ struct DataContainer {
     }
 
     template <typename... Args, typename = std::enable_if_t<sizeof...(Args) == Size>>
-    constexpr DataContainer(Args&&... args) : data{static_cast<T>(args)...} 
+    constexpr DataContainer(const Args&... args) : data{static_cast<T>(args)...} 
     {
 
     }
