@@ -2,28 +2,30 @@
 #define LERP2P_HPP
 
 #include "vector.hpp"
-#include "constfunc.hpp"
 
 namespace mtp {
 
-/* Interpolation of two points */
-template<std::size_t N, std::size_t Points>
-struct lerp2p {
+template <std::size_t N, std::size_t Points>
+struct lerp_data {
     vector<float, N> sp; /* Start Point */
     vector<float, N> ep; /* End Point */
     vector<float, N> control_points[Points]; /* (Control Points) */
 
-    inline void set_point(const std::size_t &index, const vector<float, N> &vec) {
-        control_points[index] = vec;
-    };
-
-    explicit lerp2p(const vector<float, N> &start_point, const vector<float, N> &end_point) :
+    lerp_data(const vector<float, N> &start_point, const vector<float, N> &end_point) :
         sp(start_point), ep(end_point)
     {
 
     }
+};
 
-    lerp2p()
+template <std::size_t Points>
+struct lerp_data<1, Points> {
+    float sp = 0; /* Start Point */
+    float ep = 0; /* End Point */
+    float control_points[Points] {}; /* (Control Points) */
+
+    lerp_data(const float &start_point, const float &end_point) :
+        sp(start_point), ep(end_point)
     {
 
     }
@@ -33,8 +35,8 @@ struct lerp2p {
 * @arg N - Space dimension.
 */
 template<std::size_t N>
-struct quadratic_lerp : public lerp2p<N, 1> {
-    using lerp2p<N, 1>::lerp;
+struct quadratic_lerp : public lerp_data<N, 1> {
+    using lerp_data<N, 1>::lerp_data;
 
     const vector<float, N>& ap = this->control_points[0]; 
 
@@ -89,8 +91,8 @@ struct quadratic_lerp : public lerp2p<N, 1> {
 * @arg N - Space dimension.
 */
 template <std::size_t Exp, std::size_t N>
-struct bezier_curve : public lerp2p<N, Exp-1> {
-    using lerp2p<N, Exp-1>::lerp;
+struct bezier_curve : public lerp_data<N, Exp-1> {
+    using lerp_data<N, Exp-1>::lerp_data;
 
     /**
     * @param t value within range 0.0 - 1.0
@@ -171,19 +173,18 @@ struct bezier_curve : public lerp2p<N, Exp-1> {
 * @param end
 * @param factor value within range 0.0 - 1.0
 */
-static constexpr inline float linear_lerp(const float &start, const float &end, const float &factor) {
+static constexpr inline float interp(const float &start, const float &end, const float &factor) {
     return start + (end-start)*factor;
 }
 
 /** 
+* @brief Works for vectors with different size and type.
 * @param start 
 * @param end
 * @param factor value within range 0.0 - 1.0
-*
-* Works for vectors with different size and type.
 */
 template <typename T, std::size_t N>
-static constexpr inline vector<T, N> linear_lerp(const vector<T, N> &start, const vector<T, N> &end, const float &factor) {
+static constexpr inline vector<T, N> interp(const vector<T, N> &start, const vector<T, N> &end, const float &factor) {
     return start + (end-start)*factor;
 }
 
