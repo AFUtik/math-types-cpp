@@ -14,10 +14,13 @@ namespace mtp {
 template <typename T, std::size_t Size, std::size_t Precition = 6>
 struct DataContainer {
     static_assert(Size!=0, "DataContainer Size can't be zero.");
-    T data[Size];
+    union {
+        T data[Size];
+        struct { T x, y, z, w; };
+        struct { T r, g, b, a; };
+    };
 
     static constexpr float EPSILON = 1.0f / static_cast<float>(pow10(Precition));
-    static constexpr std::size_t MEMORY_SIZE = Size*sizeof(T);
     static constexpr std::size_t size = Size;
     
     constexpr DataContainer() : data{} 

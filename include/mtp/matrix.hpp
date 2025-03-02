@@ -14,10 +14,6 @@ struct matrix : public DataContainer<T, N*M> {
 
     constexpr matrix(const DataContainer<T, N>& container) {std::copy(container.data, container.data+N, this->data);}
 
-    //constexpr matrix(const DataContainer<T, N*M>& container) {
-    //    std::copy(container.data, container.data + this->size, this->data);
-    //}
-
     /**
     * @brief Converts matrix row to vector.
     * @param row index of a row. (starts with zero)

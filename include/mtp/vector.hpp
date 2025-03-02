@@ -3,32 +3,19 @@
 
 #include "container.hpp"
 
-#define INIT_XYZW_RGBA \
-    x(this->data[0]), \
-    y(N>1 ? this->data[1] : this->data[0]), \
-    z(N>2 ? this->data[2] : this->data[0]), \
-    w(N>3 ? this->data[3] : this->data[0]), \
-    r(this->data[0]), \
-    g(N>1 ? this->data[1] : this->data[0]), \
-    b(N>2 ? this->data[2] : this->data[0]), \
-    a(N>3 ? this->data[3] : this->data[0]) \
-
 namespace mtp {
 
 template <typename T, std::size_t N, std::size_t Precition = 6>
 struct vector : public DataContainer<T, N, Precition> {
-    T &x, &y, &z, &w;
-    T &r, &g, &b, &a;
+    constexpr vector() : DataContainer<T, N, Precition>() {}
 
-    constexpr vector() : DataContainer<T, N, Precition>(), INIT_XYZW_RGBA {}
-
-    constexpr vector(T scalar) : DataContainer<T, N, Precition>(scalar), INIT_XYZW_RGBA {}
+    constexpr vector(T scalar) : DataContainer<T, N, Precition>(scalar) {}
 
     template <typename U = T, typename... Args, typename = std::enable_if_t<sizeof...(Args) == N>>
-    constexpr vector(const Args&... args) : DataContainer<T, N, Precition>(args...), INIT_XYZW_RGBA {}
+    constexpr vector(const Args&... args) : DataContainer<T, N, Precition>(args...) {}
 
     template <std::size_t NN, typename... Args, typename = std::enable_if_t<sizeof...(Args) + NN == N>>
-    constexpr vector(const vector<T, NN> &vec, const Args&... args) : INIT_XYZW_RGBA {
+    constexpr vector(const vector<T, NN> &vec, const Args&... args) {
         std::copy(vec.data, vec.data+NN, this->data);
 
         std::size_t i = NN;
@@ -39,14 +26,7 @@ struct vector : public DataContainer<T, N, Precition> {
 
     constexpr vector(const vector&) noexcept = default;
 
-    constexpr vector(const DataContainer<T, N>& container) : INIT_XYZW_RGBA {std::copy(container.data, container.data+N, this->data);}
-
-    constexpr inline void operator=(const vector<T, N>& container) {
-        x = container.x; r = container.r;
-        y = container.y; g = container.g;
-        z = container.z; b = container.b;
-        w = container.w; a = container.a;
-    }
+    constexpr vector(const DataContainer<T, N>& container) {std::copy(container.data, container.data+N, this->data);}
 
     /* UTILS methods */
     constexpr inline vector& normalize() {
