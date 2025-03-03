@@ -11,7 +11,7 @@ struct blerp_data { /* Bilinear Interpolation Data */
 
 struct trilerp_data {  /* Trilinear Interpolation Data */
 
-}
+};
 
 }
 
