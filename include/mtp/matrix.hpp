@@ -4,6 +4,8 @@
 #include "vector.hpp"
 #include "container.hpp"
 
+#include <iostream>
+
 namespace mtp {
 
 template <typename T, std::size_t N, std::size_t M = N>
@@ -34,43 +36,38 @@ struct matrix : public DataContainer<T, N*M> {
         return this->data[y*N+x];
     }
 
-    /* vector-matrix multiplication - O(N^2) */
     vector<T, N> operator*(const DataContainer<T, N>& vec) {
         vector<T, N> new_vector;
         for (size_t i = 0; i < M; i++) {
             for (size_t j = 0; j < N; j++) new_vector.data[i]+=vec.data[j]*this->data[i * N + j];
         }
         return new_vector;
-    } /* M!=N - O(M*N) | M==N - O(N^2) */
+    } 
 
-    /* vector-matrix devision - O(N^2) */
     vector<T, N> operator/(const DataContainer<T, N>& vec) {
         vector<T, N> new_vector;
         for (size_t i = 0; i < M; i++) {
             for (size_t j = 0; j < N; j++) new_vector.data[i]+=vec.data[j]/this->data[i * N + j];
         }
         return new_vector;
-    } /* M!=N - O(M*N) | M==N - O(N^2) */
+    }
 
-    /* vector-matrix sum - O(N^2) */
     vector<T, N> operator+(const DataContainer<T, N>& vec) {
         vector<T, N> new_vector;
         for (size_t i = 0; i < M; i++) {
             for (size_t j = 0; j < N; j++) new_vector.data[i]+=vec.data[j]+this->data[i * N + j];
         }
         return new_vector;
-    } /* M!=N - O(M*N) | M==N - O(N^2) */
+    }
 
-    /* vector-matrix subtraction - O(N^2) */
     vector<T, N> operator-(const DataContainer<T, N>& vec) {
         vector<T, N> new_vector;
         for (size_t i = 0; i < M; i++) {
             for (size_t j = 0; j < N; j++) new_vector.data[i]+=vec.data[j]-this->data[i * N + j];
         }
         return new_vector;
-    } /* M!=N - O(M*N) | M==N - O(N^2) */
+    }
 
-    /* classic matrix multiplication */
     matrix<T, N, M> operator*(const DataContainer<T, N*M>& mat) {
         matrix<T, N, M> new_mat;
         for (size_t i = 0; i < M; i++) {
@@ -84,7 +81,6 @@ struct matrix : public DataContainer<T, N*M> {
         return new_mat;
     } /* M!=N - O(M*N^2) | M==N - O(N^3) */
 
-    /* classic matrix sum */
     matrix<T, N, M> operator+(const DataContainer<T, N*M>& mat) {
         matrix<T, N, M> new_mat;
         for (size_t i = 0; i < M; i++) {
@@ -96,9 +92,8 @@ struct matrix : public DataContainer<T, N*M> {
             }
         }
         return new_mat;
-    } /* M!=N - O(M*N^2) | M==N - O(N^3) */
+    } 
 
-    /* classic matrix subtraction */
     matrix<T, N, M> operator-(const DataContainer<T, N*M>& mat) {
         vector<T, N, M> new_mat;
         for (size_t i = 0; i < M; i++) {
@@ -110,9 +105,8 @@ struct matrix : public DataContainer<T, N*M> {
             }
         }
         return new_mat;
-    } /* M!=N - O(M*N^2) | M==N - O(N^3) */
+    } 
 
-    /* classic matrix division */
     matrix<T, N, M> operator/(const DataContainer<T, N*M>& mat) {
         vector<T, N, M> new_mat;
         for (size_t i = 0; i < M; i++) {
@@ -124,7 +118,96 @@ struct matrix : public DataContainer<T, N*M> {
             }
         }
         return new_mat;
-    } /* M!=N - O(M*N^2) | M==N - O(N^3) */
+    } 
+
+};
+
+template <typename T, std::size_t N, std::size_t M>
+constexpr matrix<T, M, N> transpose(const matrix<T, N, M>& mat) {
+    matrix<T, M, N> new_matrix;
+    for(std::size_t i = 0; i < M; i++) {
+        for(std::size_t j = 0; j < N; j++) {
+            new_matrix.data[j*N+i] = mat.data[i*N+j];
+        }
+    }
+    return new_matrix;
+}
+
+template <typename T, std::size_t N, std::size_t M>
+constexpr matrix<T, N, M> pow(const matrix<T, N, M>& mat, const std::size_t &exp) {
+    vector<T, N, M> new_mat;
+    for (size_t i = 0; i < N*M; i++) {
+        T& val = mat.data[i];
+        if(val!=0) val = mtp::pow<T>(val, exp);
+    }
+    return new_mat;
+}
+
+/*
+template <typename T, std::size_t N, std::size_t M>
+constexpr matrix<T, N, M> det(const matrix<T, N, M>& mat) {}
+*/
+
+/*
+template <typename T, std::size_t N, std::size_t M>
+constexpr matrix<T, N, M> trace(const matrix<T, N, M>& mat) {}
+*/
+
+/*
+template <typename T, std::size_t N, std::size_t M>
+constexpr matrix<T, N, M> rref(const matrix<T, N, M>& mat) {}
+*/
+
+/*
+template <typename T, std::size_t N, std::size_t M>
+constexpr matrix<T, N, M> inverse(const matrix<T, N, M>& mat) {}
+*/
+
+/**
+* @brief Compressed Sparse Row Matrix.
+*/
+template<typename T, std::size_t N, std::size_t M>
+struct matrix_csr : matrix<T, N, M> {
+    using matrix<T, N, M>::matrix;
+
+    unsigned int col_indices[N*M];
+    unsigned int row_ptr[M+1];
+
+    unsigned int values_size = 0;
+
+    constexpr matrix_csr(const matrix_csr&) noexcept = default;
+
+    template <typename... Args, typename = std::enable_if_t<sizeof...(Args) == N*M>>
+    matrix_csr(const Args&... args)
+    { 
+        std::size_t i = 0; 
+        std::size_t row = 1;
+        row_ptr[0] = 0;
+        for(const T& arg : {args...}) {
+            if(arg!=0) {
+                col_indices[values_size] = i%M;
+                values_size++; 
+            }
+            this->data[i] = arg;
+            i++;
+            
+            if(i%M==0) {
+                row_ptr[row] = values_size;
+                row++;
+            }
+        }
+    }
+
+    vector<T, N> operator*(const vector<T, N>& vec) {
+        vector<T, N> new_vec;
+        for (size_t i = 0; i < M; i++) {
+            for (size_t j = row_ptr[i]; j < row_ptr[i + 1]; j++) {
+                const unsigned int &col = col_indices[j];
+                new_vec.data[i] += this->data[i*N+col] * vec.data[col];
+            }
+        }
+        return new_vec;
+    } 
 };
 
 template <typename T>
@@ -231,16 +314,6 @@ struct dynamic_matrix3d : DynamicDataContainer<T> {
     }
 };
 
-template <typename T, std::size_t N, std::size_t M>
-constexpr matrix<T, M, N> transpose(const matrix<T, N, M>& mat) {
-    matrix<T, M, N> new_matrix;
-    for(std::size_t i = 0; i < M; i++) {
-        for(std::size_t j = 0; j < N; j++) {
-            new_matrix.data[j*N+i] = mat.data[i*N+j];
-        }
-    }
-    return new_matrix;
-}
 
 template <typename T>
 dynamic_matrix<T> transpose(const dynamic_matrix<T>& mat) {

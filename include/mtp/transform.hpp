@@ -18,24 +18,6 @@ struct transform {
     }; /* Defualt Model Matrix */
 };
 
-template<typename T>
-struct transform2 : public transform<T> {
-    vector2<T*> position = {&this->mm[12], &this->mm[13]};
-    matrix2<T*> rot_mat  = {&this->mm[0], &this->mm[1],
-                            &this->mm[4], &this->mm[5]};               
-    vector2<T*> scale    = {&this->mm[3], &this->mm[7]};
-};
-
-
-template<typename T>
-struct transform3 : public transform<T> {
-    vector3<T*> position = {&this->mm[12], &this->mm[13], &this->mm[14]};
-    matrix3<T*> rot_mat  = {&this->mm[0], &this->mm[1], &this->mm[2],
-                            &this->mm[4], &this->mm[5], &this->mm[6],
-                            &this->mm[8], &this->mm[9], &this->mm[10]};               
-    vector3<T*> scale    = {&this->mm[3], &this->mm[7], &this->mm[11]};
-};
-
 /* Position tranformations */
 
 template <typename T>
@@ -73,22 +55,26 @@ static constexpr inline void setPos(matrix<T, 4, 4> &model, const vector<T, 2> &
 */
 template <typename T>
 static constexpr void rotate(matrix<T, 4, 4> &model, const vector<T, 3> &vector) {
-    float ca = std::cos(vector.x), sa = std::sin(vector.x);
-    float cb = std::cos(vector.y), sb = std::sin(vector.y);
-    float cg = std::cos(vector.z), sg = std::sin(vector.z);
+    const float ca = std::cos(vector.x), sa = std::sin(vector.x);
+    const float cb = std::cos(vector.y), sb = std::sin(vector.y);
+    const float cg = std::cos(vector.z), sg = std::sin(vector.z);
+
+    const float mul1 = cg * sa;
+    const float mul2 = ca * sb;
+    const float mul3 = sg * sa;
 
     /* Matrix Multiplications - R_x * R_y * R_z */
-    model[0] = cb * cg;
-    model[1] = cg * sa * sb - sg * ca;
-    model[2] = cg * ca * sb + sg * sa;
+    model.data[0] = cb * cg;
+    model.data[1] = mul1 * sb - sg * ca;
+    model.data[2] = cg * mul2 + mul3;
 
-    model[4] = sb;
-    model[5] = cb * ca;
-    model[6] = -cb * sa;
+    model.data[4] = sb;
+    model.data[5] = cb * ca;
+    model.data[6] = -cb * sa;
 
-    model[8] = -sg * cb;
-    model[9] = sg * sa * sb + cg * ca;
-    model[10]= sg * ca * sb - cg * sa;
+    model.data[8] = -sg * cb;
+    model.data[9] = mul3 * sb + cg * ca;
+    model.data[10]= sg * mul2 - mul1;
 };
 
 template <typename T>
@@ -104,13 +90,7 @@ static constexpr inline void setRotation(matrix<T, 4, 4> &model, const matrix<T,
     model.data[10]= matrix.data[8];
 };
 
-template <typename T>
-static constexpr inline void setRotation(matrix<T, 3, 3> &model, const matrix<T, 2, 2> &matrix) {
-    model.data[0] = matrix.data[0];
-    model.data[1] = matrix.data[1];
-    model.data[3] = matrix.data[2];
-    model.data[4] = matrix.data[3];
-};
+/* Projections */
 
 /**
 * @param fov
@@ -154,11 +134,6 @@ constexpr static matrix<T, 4> orthographic(float left, float right, float bottom
     result.data[15] = 1.0f;
     return result;
 };
-
-using transform2d = transform2<double>;
-using transform3d = transform3<double>;
-using transform2f = transform2<float>;
-using transform3f = transform3<float>;
 
 }
 

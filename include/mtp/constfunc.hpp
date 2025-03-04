@@ -7,9 +7,7 @@ namespace mtp {
 
 /* exponentiation by squaring */
 template <typename T>
-constexpr T ipow(T base, std::size_t exp) {
-    static_assert(std::is_arithmetic_v<T>, "ipow requires an arithmetic type");
-
+constexpr T pow(T base, std::size_t exp) {
     T result = 1;
     while(exp) {
         if (exp & 1) result *= base;
