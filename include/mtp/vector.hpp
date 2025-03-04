@@ -27,15 +27,6 @@ struct vector : public DataContainer<T, N, Precition> {
     constexpr vector(const vector&) noexcept = default;
 
     constexpr vector(const DataContainer<T, N>& container) {std::copy(container.data, container.data+N, this->data);}
-
-    /* UTILS methods */
-    constexpr inline vector& normalize() {
-        double length = 0.0f;
-        for(size_t i = 0; i < N; i++) length += this->data[i]*this->data[i];
-        length = mtp::sqrt<double>(length);
-        for(size_t i = 0; i < N; i++) this->data[i]/=length;
-        return *this;
-    }
 };
 
 /* static methods for vector */

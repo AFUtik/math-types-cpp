@@ -263,10 +263,11 @@ struct bezier_curve : public lerp_data<N, Order-1> {
                 3.0f * t2 * dt * this->control_points[1].y + t2*t * this->ep.y
             };
         } else if constexpr (N==3) {
-            const float dt3 = dt2*dt;
-            const float t3  = t2*t;
-            const float mul1 = 3.0f * t * dt2;
-            const float mul2 = 3.0f * t2 * dt;
+            const float dt3  = dt2*dt;
+            const float t3   = t2*t;
+            const float dtt3 = 3.0f * dt*t;
+            const float mul1 = dtt3*dt;
+            const float mul2 = dtt3*t;
             return {
                 x_new,
 
@@ -290,9 +291,23 @@ struct bezier_curve : public lerp_data<N, Order-1> {
     }
 };
 
-struct bspline {
+/* splines */
+    // struct cubic_spline {};
 
-};
+    // struct bspline {};
+
+/* polynomial */
+    // struct newton_poly {};
+
+/* on basis func */
+    // struct gaussian_lerp {};
+
+    // struct rbf_lerp {}; (radical basis functions)
+
+/* filters */
+    // struct lanczos_lerp {};
+
+    // struct sinc_lerp {};
 
 }
 

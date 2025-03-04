@@ -8,7 +8,7 @@
 
 namespace mtp {
 
-template <typename T, std::size_t N, std::size_t M = N>
+template <typename T = float, std::size_t N = 0, std::size_t M = 0>
 struct matrix : public DataContainer<T, N*M> {
     using DataContainer<T, N*M>::DataContainer;
 
@@ -207,47 +207,16 @@ struct matrix_csr : matrix<T, N, M> {
             }
         }
         return new_vec;
-    } 
-};
-
-template <typename T>
-struct dynamic_matrix : DynamicDataContainer<T> {
-    std::size_t n = 0;
-    std::size_t m = 0;
-
-    using DynamicDataContainer<T>::DynamicDataContainer;
-
-    dynamic_matrix(const std::size_t &rows, const std::size_t &cols) : n(rows), m(cols),
-        DynamicDataContainer<T>(rows*cols)
-    {
-
     }
 
-    dynamic_matrix(const std::size_t &rows, const std::size_t &cols, const T& scalar) : n(rows), m(cols),
-        DynamicDataContainer<T>(rows*cols, scalar)
-    {
-        
-    }
-
-    /**
-    * @brief Gets an object by xy cordinates.
-    * @param x Width
-    * @param y Height
-    * @return Returns T object.
+    /*
+    * #TODO
+    * Create operators /+-
+    * Create operators for matrix_crs x matrix_crs operations.
+    *
     */
-    inline T& get(const size_t& x, const size_t& y) {
-        return this->data[y*n+x];
-    }
-
-    /* resizes 2-dimensional matrix and resets all values in array to zero */
-    void resize(const std::size_t &rows, const std::size_t &cols) {
-        n = rows;
-        m = cols;
-
-        if(this->data != nullptr) delete[] this->data; 
-        this->data = new T[rows*cols]();
-    }
 };
+
 
 template <typename T, std::size_t W, std::size_t H = W, std::size_t V = H>
 struct matrix3d : public DataContainer<T, W*H*V> {
@@ -273,21 +242,60 @@ struct matrix3d : public DataContainer<T, W*H*V> {
     }
 };
 
+/* Dynamic Implementation */
+
 template <typename T>
-struct dynamic_matrix3d : DynamicDataContainer<T> {
+struct matrix<T, 0, 0> : DynamicDataContainer<T> {
+    std::size_t n = 0;
+    std::size_t m = 0;
+
+    matrix(const std::size_t &rows, const std::size_t &cols) : DynamicDataContainer<T>(rows*cols), 
+        n(rows), m(cols)
+    {
+
+    }
+
+    matrix(const std::size_t &rows, const std::size_t &cols, const T& scalar) : DynamicDataContainer<T>(rows*cols, scalar), 
+        n(rows), m(cols)
+    {
+        
+    }
+
+    /**
+    * @brief Gets an object by xy cordinates.
+    * @param x Width
+    * @param y Height
+    * @return Returns T object.
+    */
+    inline T& get(const size_t& x, const size_t& y) {
+        return this->data[y*n+x];
+    }
+
+    /* resizes 2-dimensional matrix and resets all values in array to zero */
+    void resize(const std::size_t &rows, const std::size_t &cols) {
+        n = rows;
+        m = cols;
+
+        if(this->data != nullptr) delete[] this->data; 
+        this->data = new T[rows*cols]();
+    }
+};
+
+template <typename T>
+struct matrix3d<T, 0, 0> : DynamicDataContainer<T> {
     std::size_t w = 0;
     std::size_t h = 0;
     std::size_t v = 0;
 
     using DynamicDataContainer<T>::DynamicDataContainer;
 
-    dynamic_matrix3d(const std::size_t &width, const std::size_t &height, const std::size_t &volume) : 
+    matrix3d(const std::size_t &width, const std::size_t &height, const std::size_t &volume) : 
         w(width), h(height), v(volume), DynamicDataContainer<T>(width*height*volume)
     {
 
     }
 
-    dynamic_matrix3d(const std::size_t &width, const std::size_t &height, const std::size_t &volume, const T& scalar) : 
+    matrix3d(const std::size_t &width, const std::size_t &height, const std::size_t &volume, const T& scalar) : 
         w(width), h(height), v(volume), DynamicDataContainer<T>(width*height*volume, scalar)
     {
         
@@ -316,8 +324,8 @@ struct dynamic_matrix3d : DynamicDataContainer<T> {
 
 
 template <typename T>
-dynamic_matrix<T> transpose(const dynamic_matrix<T>& mat) {
-    dynamic_matrix<T> new_matrix(mat.m, mat.n);
+matrix<T, 0, 0> transpose(const matrix<T, 0, 0>& mat) {
+    matrix<T, 0, 0> new_matrix(mat.m, mat.n);
     for(std::size_t i = 0; i < mat.m; i++) {
         for(std::size_t j = 0; j < mat.n; j++) {
             new_matrix.data[j*mat.n+i] = mat.data[i*mat.n+j];
@@ -334,6 +342,8 @@ using matrix2x3 = matrix<float, 2, 3>;
 using matrix4f = matrix<float, 4, 4>;
 using matrix3f = matrix<float, 3, 3>;
 using matrix2f = matrix<float, 2, 2>;
+
+using dmatrix = matrix<>; /* dynamic matrix */
 
 template <typename T> using matrix4 = matrix<T, 4, 4>;
 template <typename T> using matrix3 = matrix<T, 3, 3>;
