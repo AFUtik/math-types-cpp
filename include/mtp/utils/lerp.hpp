@@ -1,9 +1,11 @@
 #ifndef LERP2P_HPP
 #define LERP2P_HPP
 
-#include "vector.hpp"
+#include "../vector.hpp"
 
-namespace mtp {
+using namespace mtp;
+
+namespace mtpu {
 
 /** 
 * @param start 
@@ -95,7 +97,7 @@ struct lagrange_poly : public lerp_data<N, Order-1> {
     */
     template<std::size_t order = Order, typename std::enable_if_t<order==1, int> = 0>
     inline vector<float, N> interp(const float& factor) {
-        const float x_new = mtp::lerp(this->points[0].x, this->points[1].x, factor);
+        const float x_new = mtpu::lerp(this->points[0].x, this->points[1].x, factor);
         const float diff1 = x_new-this->points[0].x;
         const float diff2 = x_new-this->points[1].x;
         if constexpr (N==2) {
@@ -126,7 +128,7 @@ struct lagrange_poly : public lerp_data<N, Order-1> {
     */
     template<std::size_t order = Order, typename std::enable_if_t<order==2, int> = 0>
     inline vector<float, N> interp(const float& factor) {
-        const float x_new = mtp::lerp(this->points[0].x, this->points[2].x, factor);
+        const float x_new = mtpu::lerp(this->points[0].x, this->points[2].x, factor);
         const float diff1 = x_new-this->points[0].x;
         const float diff2 = x_new-this->points[1].x;
         const float diff3 = x_new-this->points[2].x;
@@ -162,7 +164,7 @@ struct lagrange_poly : public lerp_data<N, Order-1> {
     */
     template<std::size_t n = N, typename std::enable_if_t<n==2 && (Order > 2), int> = 0>
     inline vector2f interp(const float& factor) {
-        const float x_new = mtp::lerp(this->points[0].x, this->points[this->points_size-1].x, factor);
+        const float x_new = mtpu::lerp(this->points[0].x, this->points[this->points_size-1].x, factor);
         float y_new = 0.0f;
         for (std::size_t i = 0; i < this->points_size; ++i) {
             float L_i = 1.0f, d = 1.0f;
@@ -182,7 +184,7 @@ struct lagrange_poly : public lerp_data<N, Order-1> {
     */
     template<std::size_t n = N, typename std::enable_if_t<n==3  && (Order > 2), int> = 0>
     vector3f interp(const float& factor) {
-        const float x_new = mtp::lerp(this->points[0].x, this->points[this->POINTS_SIZE-1].x, factor);
+        const float x_new = mtpu::lerp(this->points[0].x, this->points[this->POINTS_SIZE-1].x, factor);
         float y_new = 0.0f, z_new = 0.0f;
         for (std::size_t i = 0; i < this->POINTS_SIZE; ++i) {
             float L_i = 1.0f;
@@ -226,7 +228,7 @@ struct bezier_curve : public lerp_data<N, Order-1> {
     */
     template <std::size_t order = Order, typename std::enable_if_t<order == 2, int> = 0>
     inline vector<float, N> interp(const float &t) {
-        const float x_new = mtp::lerp(this->points[0].x, this->points[1].x, t);
+        const float x_new = mtpu::lerp(this->points[0].x, this->points[1].x, t);
         const float dt = (1.0f - t);
         if constexpr (N==2) {
             return {
@@ -251,7 +253,7 @@ struct bezier_curve : public lerp_data<N, Order-1> {
     */
     template <std::size_t order = Order, typename std::enable_if_t<order == 3, int> = 0>
     inline float interp(const float &t) {
-        const float x_new = mtp::lerp(this->points[0].x, this->points[2].x, t);
+        const float x_new = mtpu::lerp(this->points[0].x, this->points[2].x, t);
         const float dt = (1.0f - t);
         const float dt2= dt*dt;
         const float t2 = t*t;

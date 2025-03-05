@@ -3,7 +3,7 @@
 
 #include "lerp.hpp"
 
-namespace mtp {
+namespace mtpu {
 
 struct blerp_data { /* Bilinear Interpolation Data */
     

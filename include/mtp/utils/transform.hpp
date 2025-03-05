@@ -1,12 +1,13 @@
 #ifndef TRANSFORM_HPP
 #define TRANSFORM_HPP
 
-#include "vector.hpp"
-#include "matrix.hpp"
-
+#include "../vector.hpp"
+#include "../matrix.hpp"
 #include <cmath>
 
-namespace mtp {
+using namespace mtp;
+
+namespace mtpu {
 
 template<typename T>
 struct transform {

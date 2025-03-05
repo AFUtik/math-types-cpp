@@ -4,11 +4,9 @@
 #include "vector.hpp"
 #include "container.hpp"
 
-#include <iostream>
-
 namespace mtp {
 
-template <typename T = float, std::size_t N = 0, std::size_t M = 0>
+template <typename T = float, std::size_t N = 0, std::size_t M = N>
 struct matrix : public DataContainer<T, N*M> {
     using DataContainer<T, N*M>::DataContainer;
 
@@ -343,7 +341,7 @@ using matrix4f = matrix<float, 4, 4>;
 using matrix3f = matrix<float, 3, 3>;
 using matrix2f = matrix<float, 2, 2>;
 
-using dmatrix = matrix<>; /* dynamic matrix */
+using dmatrix = matrix<>; /* dynamic matrix specialization */
 
 template <typename T> using matrix4 = matrix<T, 4, 4>;
 template <typename T> using matrix3 = matrix<T, 3, 3>;

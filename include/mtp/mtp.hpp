@@ -1,4 +1,5 @@
 #pragma once
 
-#include "transform.hpp"
-#include "lerp.hpp"
+#include "matrix.hpp"
+#include "vector.hpp"
+#include "quat.hpp"

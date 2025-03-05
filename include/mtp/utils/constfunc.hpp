@@ -3,7 +3,7 @@
 
 #include <limits>
 
-namespace mtp {
+namespace mtpu {
 
 /* exponentiation by squaring */
 template <typename T>

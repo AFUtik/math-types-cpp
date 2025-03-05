@@ -2,10 +2,9 @@
 #define MATH_TYPES_HPP
 
 #include <type_traits>
-#include <cstring>
 #include <algorithm>
 
-#include "constfunc.hpp"
+#include "utils/constfunc.hpp"
 
 /* Namespace Math Type*/
 

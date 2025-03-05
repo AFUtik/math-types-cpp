@@ -35,7 +35,7 @@ static constexpr inline vector<T, N> normalize(const vector<T, N> &vec) {
     vector<T, N> new_container;
     double length = 0.0f;
     for(size_t i = 0; i < N; i++) length += vec.data[i]*vec.data[i];
-    length = mtp::sqrt<double>(length);
+    length = mtpu::sqrt<double>(length);
     for(size_t i = 0; i < N; i++) new_container.data[i]/=length;
     return new_container;
 }
