@@ -19,7 +19,7 @@ struct DataContainer {
         struct { T r, g, b, a; };
     };
 
-    static constexpr float EPSILON = 1.0f / static_cast<float>(pow10(Precition));
+    static constexpr float EPSILON = 1.0f / static_cast<float>(mtpu::pow10(Precition));
     static constexpr std::size_t size = Size;
     
     constexpr DataContainer() : data{} 
@@ -204,36 +204,28 @@ struct DataContainer {
 };
 
 template <typename T>
-struct DynamicDataContainer {
+struct DataContainer<T, 0> {
     T* data;
     std::size_t size;
     
-    DynamicDataContainer() : data(nullptr), size(0) 
+    DataContainer() : data(nullptr), size(0) 
     {
 
     }
 
-    DynamicDataContainer(const std::size_t& size) : data(new T[size]()), size(size) 
+    DataContainer(const std::size_t& size) : data(new T[size]()), size(size) 
     {
 
     }
 
     
-    DynamicDataContainer(const std::size_t& size, T* array) : data(array), size(size)
+    DataContainer(const std::size_t& size, T* array) : data(array), size(size)
     {
         
     }
     
-    DynamicDataContainer(const std::size_t& size, const T& scalar) : data(new T[size]), size(size) 
-    {
-        for(std::size_t i = 0; i < size; i++) data[i] = scalar;
-    }
-    
-    ~DynamicDataContainer() {
-        if(data) {
-            delete[] data;
-            data = nullptr;
-        }
+    ~DataContainer() {
+        delete[] data;
     }
 
     using data_iterator  = T*;
@@ -257,26 +249,26 @@ struct DynamicDataContainer {
 
     inline void operator/=(const T &scalar) {for (size_t i = 0; i < size; i++) data[i] /= scalar;}
 
-    inline DynamicDataContainer operator+(const T &scalar) const {
-        DynamicDataContainer result(size);
+    inline DataContainer operator+(const T &scalar) const {
+        DataContainer result(size);
         for (size_t i = 0; i < size; i++) result.data[i] = data[i] + scalar;
         return result;
     }
 
-    inline DynamicDataContainer operator-(const T &scalar) const {
-        DynamicDataContainer result(size);
+    inline DataContainer operator-(const T &scalar) const {
+        DataContainer result(size);
         for (size_t i = 0; i < size; i++) result.data[i] = data[i] - scalar;
         return result;
     }
 
-    inline DynamicDataContainer operator*(const T &scalar) const {
-        DynamicDataContainer result(size);
+    inline DataContainer operator*(const T &scalar) const {
+        DataContainer result(size);
         for (size_t i = 0; i < size; i++) result.data[i] = data[i] * scalar;
         return result;
     }
 
-    inline DynamicDataContainer operator/(const T &scalar) const {
-        DynamicDataContainer result(size);
+    inline DataContainer operator/(const T &scalar) const {
+        DataContainer result(size);
         for (size_t i = 0; i < size; i++) result.data[i] = data[i] / scalar;
         return result;
     }

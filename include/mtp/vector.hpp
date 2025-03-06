@@ -5,7 +5,7 @@
 
 namespace mtp {
 
-template <typename T, std::size_t N, std::size_t Precition = 6>
+template <typename T, std::size_t N = 0, std::size_t Precition = 6>
 struct vector : public DataContainer<T, N, Precition> {
     constexpr vector() : DataContainer<T, N, Precition>() {}
 
