@@ -110,7 +110,7 @@ struct vector<T, 0> : public DataContainer<T, 0, 6> {
 
 /* static methods for vector */
 template<typename T, std::size_t N>
-static constexpr inline vector<T, N> normalize(const vector<T, N> &vec) {
+constexpr inline vector<T, N> normalize(const vector<T, N> &vec) {
     vector<T, N> new_container;
     double length = 0.0f;
     for(size_t i = 0; i < N; i++) length += vec.data[i]*vec.data[i];
@@ -120,19 +120,19 @@ static constexpr inline vector<T, N> normalize(const vector<T, N> &vec) {
 }
 
 template<typename T, std::size_t N>
-static constexpr inline T dot_product(const DataContainer<T, N> &vec1, const DataContainer<T, N> &vec2) {
+constexpr inline T dot_product(const DataContainer<T, N> &vec1, const DataContainer<T, N> &vec2) {
     T res = 0;
     for(std::size_t i = 0; i < N; i++) res += vec1.data[i] * vec2.data[i];
     return res;
 }
 
 template<typename T>
-static constexpr inline T cross_product(const DataContainer<T, 2> &vec1, const DataContainer<T, 2> &vec2) {
+constexpr inline T cross_product(const DataContainer<T, 2> &vec1, const DataContainer<T, 2> &vec2) {
     return vec1.x * vec2.y - vec1.y * vec2.x;
 }
 
 template<typename T>
-static constexpr inline vector<T, 3> cross_product(const DataContainer<T, 3> &vec1, const DataContainer<T, 3> &vec2) {
+constexpr inline vector<T, 3> cross_product(const DataContainer<T, 3> &vec1, const DataContainer<T, 3> &vec2) {
     return {
         vec1.y * vec2.z - vec1.z * vec2.y,
         vec1.z * vec2.x - vec1.x * vec2.z,
