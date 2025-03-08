@@ -22,11 +22,90 @@ struct vector : public DataContainer<T, N, Precition> {
         ((this->data[i++] = args), ...);
     }
 
-    /* Data assigning */
+    constexpr inline void operator+=(const vector& other) noexcept {
+        for (size_t i = 0; i < N; i++) this->data[i] += other.data[i];
+    }
 
-    constexpr vector(const vector&) noexcept = default;
+    constexpr inline void operator-=(const vector& other) noexcept {
+        for (size_t i = 0; i < N; i++) this->data[i] -= other.data[i];
+    }
 
-    constexpr vector(const DataContainer<T, N>& container) {std::copy(container.data, container.data+N, this->data);}
+    constexpr inline void operator*=(const vector& other) noexcept {
+        for (size_t i = 0; i < N; i++) this->data[i] *= other.data[i];
+    }
+
+    constexpr inline void operator/=(const vector& other) noexcept {
+        for (size_t i = 0; i < N; i++) this->data[i] /= other.data[i];
+    }
+
+    constexpr inline vector operator+(const vector& other) const noexcept {
+        vector result;
+        for (size_t i = 0; i < N; i++) result.data[i] = this->data[i] + other.data[i];
+        return result;
+    }
+
+    constexpr inline vector operator-(const vector& other) const noexcept {
+        vector result;
+        for (size_t i = 0; i < N; i++) result.data[i] = this->data[i] - other.data[i];
+        return result;
+    }
+    
+    constexpr inline vector operator*(const vector& other) const noexcept {
+        vector result;
+        for (size_t i = 0; i < N; i++) result.data[i] = this->data[i] * other.data[i];
+        return result;
+    }
+
+    constexpr inline vector operator/(const vector& other) const noexcept {
+        vector result;
+        for (size_t i = 0; i < N; i++) result.data[i] = this->data[i] / other.data[i];
+        return result;
+    }
+};
+
+template <typename T>
+struct vector<T, 0> : public DataContainer<T, 0, 6> {
+    using DataContainer<T, 0>::DataContainer;
+
+    inline void operator+=(const vector& other) {
+        for (size_t i = 0; i < this->size; i++) this->data[i] += other.data[i];
+    }
+
+    inline void operator-=(const vector& other) {
+        for (size_t i = 0; i < this->size; i++) this->data[i] -= other.data[i];
+    }
+
+    inline void operator*=(const vector& other) {
+        for (size_t i = 0; i < this->size; i++) this->data[i] *= other.data[i];
+    }
+
+    inline void operator/=(const vector& other) {
+        for (size_t i = 0; i < this->size; i++) this->data[i] /= other.data[i];
+    }
+
+    inline vector operator+(const vector& other) const {
+        vector result(this->size);
+        for (size_t i = 0; i < this->size; i++) result.data[i] = this->data[i] + other.data[i];
+        return result;
+    }
+
+    inline vector operator-(const vector& other) const {
+        vector result(this->size);
+        for (size_t i = 0; i < this->size; i++) result.data[i] = this->data[i] - other.data[i];
+        return result;
+    }
+    
+    inline vector operator*(const vector& other) const {
+        vector result(this->size);
+        for (size_t i = 0; i < this->size; i++) result.data[i] = this->data[i] * other.data[i];
+        return result;
+    }
+
+    inline vector operator/(const vector& other) const {
+        vector result(this->size);
+        for (size_t i = 0; i < this->size; i++) result.data[i] = this->data[i] / other.data[i];
+        return result;
+    }
 };
 
 /* static methods for vector */

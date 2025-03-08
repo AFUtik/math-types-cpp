@@ -6,13 +6,10 @@
 
 #include "utils/constfunc.hpp"
 
-/* Namespace Math Type*/
-
 namespace mtp {
 
 template <typename T, std::size_t Size, std::size_t Precition = 6>
 struct DataContainer {
-    static_assert(Size!=0, "DataContainer Size can't be zero.");
     union {
         T data[Size];
         struct { T x, y, z, w; };
@@ -57,43 +54,19 @@ struct DataContainer {
 
     constexpr inline const T& operator[](const std::size_t &index) const {return data[index];}
 
-    constexpr inline DataContainer operator+(const DataContainer& other) const {
-        DataContainer result;
-        for (size_t i = 0; i < Size; i++) result.data[i] = data[i] + other.data[i];
-        return result;
-    }
-
-    constexpr inline DataContainer operator-(const DataContainer& other) const {
-        DataContainer result;
-        for (size_t i = 0; i < Size; i++) result.data[i] = data[i] - other.data[i];
-        return result;
-    }
-    
-    constexpr inline DataContainer operator*(const DataContainer& other) const {
-        DataContainer result;
-        for (size_t i = 0; i < Size; i++) result.data[i] = data[i] * other.data[i];
-        return result;
-    }
-
-    constexpr inline DataContainer operator/(const DataContainer& other) const {
-        DataContainer result;
-        for (size_t i = 0; i < Size; i++) result.data[i] = data[i] / other.data[i];
-        return result;
-    }
-
-    constexpr inline DataContainer operator+(const T &scalar) const {
+    constexpr inline DataContainer operator+(const T &scalar) const noexcept {
         DataContainer result;
         for (size_t i = 0; i < Size; i++) result.data[i] = data[i] + scalar;
         return result;
     }
 
-    constexpr inline DataContainer operator-(const T &scalar) const {
+    constexpr inline DataContainer operator-(const T &scalar) const noexcept {
         DataContainer result;
         for (size_t i = 0; i < Size; i++) result.data[i] = data[i] - scalar;
         return result;
     }
 
-    constexpr inline DataContainer operator*(const T &scalar) const {
+    constexpr inline DataContainer operator*(const T &scalar) const noexcept {
         DataContainer result;
         for (size_t i = 0; i < Size; i++) result.data[i] = data[i] * scalar;
         return result;
@@ -105,33 +78,19 @@ struct DataContainer {
         return result;
     }
 
-    constexpr inline void operator+=(const DataContainer& other) {
-        for (size_t i = 0; i < Size; i++) data[i] += other.data[i];
-    }
+    constexpr inline void operator+=(const T &scalar) noexcept {for (size_t i = 0; i < Size; i++) data[i] += scalar;}
 
-    constexpr inline void operator-=(const DataContainer& other) {
-        for (size_t i = 0; i < Size; i++) data[i] -= other.data[i];
-    }
+    constexpr inline void operator-=(const T &scalar) noexcept {for (size_t i = 0; i < Size; i++) data[i] -= scalar;}
 
-    constexpr inline void operator*=(const DataContainer& other) {
-        for (size_t i = 0; i < Size; i++) data[i] *= other.data[i];
-    }
+    constexpr inline void operator*=(const T &scalar) noexcept {for (size_t i = 0; i < Size; i++) data[i] *= scalar;}
 
-    constexpr inline void operator/=(const DataContainer& other) {
-        for (size_t i = 0; i < Size; i++) data[i] /= other.data[i];
-    }
+    constexpr inline void operator/=(const T &scalar) noexcept {for (size_t i = 0; i < Size; i++) data[i] /= scalar;}
 
-    constexpr inline void operator+=(const T &scalar) {for (size_t i = 0; i < Size; i++) data[i] += scalar;}
-
-    constexpr inline void operator-=(const T &scalar) {for (size_t i = 0; i < Size; i++) data[i] -= scalar;}
-
-    constexpr inline void operator*=(const T &scalar) {for (size_t i = 0; i < Size; i++) data[i] *= scalar;}
-
-    constexpr inline void operator/=(const T &scalar) {for (size_t i = 0; i < Size; i++) data[i] /= scalar;}
+    constexpr inline void operator<<=(const T &scalar) noexcept {for (size_t i = 0; i < size; i++) data[i] <<= scalar;}
 
     /* Comparison operators. Returns only bitmask */
 
-    constexpr int operator>=(const DataContainer<T, Size>& other) {
+    constexpr int operator>=(const DataContainer<T, Size>& other) const {
         int bitmask = 0;
         for (size_t i = 0; i < Size; i++) {
             if(data[i] >= other.data[i]) bitmask|=1;
@@ -140,7 +99,7 @@ struct DataContainer {
         return bitmask;
     }
 
-    constexpr int operator<=(const DataContainer<T, Size>& other) {
+    constexpr int operator<=(const DataContainer<T, Size>& other) const {
         int bitmask = 0;
         for (size_t i = 0; i < Size; i++) {
             if(data[i] <= other.data[i]) bitmask|=1;
@@ -149,7 +108,7 @@ struct DataContainer {
         return bitmask;
     }
 
-    constexpr int operator>(const DataContainer<T, Size>& other) {
+    constexpr int operator>(const DataContainer<T, Size>& other) const {
         int bitmask = 0;
         for (size_t i = 0; i < Size; i++) {
             if(data[i] > other.data[i]) bitmask|=1;
@@ -158,7 +117,7 @@ struct DataContainer {
         return bitmask;
     }
 
-    constexpr int operator<(const DataContainer<T, Size>& other) {
+    constexpr int operator<(const DataContainer<T, Size>& other) const {
         int bitmask = 0;
         for (size_t i = 0; i < Size; i++) {
             if(data[i] < other.data[i]) bitmask|=1;
@@ -167,7 +126,7 @@ struct DataContainer {
         return bitmask;
     }
 
-    constexpr int operator==(const DataContainer<T, Size>& other) {
+    constexpr int operator==(const DataContainer<T, Size>& other) const {
         if constexpr(std::is_floating_point_v<T>) {
             int bitmask = 0;
             for (size_t i = 0; i < Size; i++) {
@@ -184,7 +143,7 @@ struct DataContainer {
             return bitmask;
         }
     }
-    constexpr inline int operator!=(const DataContainer<T, Size>& other) {
+    constexpr inline int operator!=(const DataContainer<T, Size>& other) const {
         if constexpr(std::is_floating_point_v<T>) {
             int bitmask = 0;
             for (size_t i = 0; i < Size; i++) {
@@ -206,36 +165,27 @@ struct DataContainer {
 template <typename T>
 struct DataContainer<T, 0> {
     T* data;
-    std::size_t size;
-    
-    DataContainer() : data(nullptr), size(0) 
+    size_t size = 0;
+
+    DataContainer() : data(nullptr), size(0)
     {
 
     }
 
-    DataContainer(const std::size_t& size) : data(new T[size]()), size(size) 
+    DataContainer(const std::size_t& size) : data(new T[size]()), size(size)
     {
 
     }
 
-    
-    DataContainer(const std::size_t& size, T* array) : data(array), size(size)
+    DataContainer(const std::size_t& size, const T& scalar) : data(new T[size]), size(size)
     {
-        
+        for(size_t i = 0; i < size; i++) data[i] = scalar;
     }
-    
-    ~DataContainer() {
+
+    ~DataContainer() 
+    {
         delete[] data;
     }
-
-    using data_iterator  = T*;
-    using data_citerator = const T*;
-
-    constexpr data_iterator begin() noexcept { return data; }
-    constexpr data_iterator end() noexcept { return data + size; }
-
-    constexpr data_citerator cbegin() const noexcept { return data; }
-    constexpr data_citerator cend() const noexcept { return data + size; }
 
     constexpr inline T& operator[](const std::size_t &index) {return data[index];}
 
@@ -248,6 +198,8 @@ struct DataContainer<T, 0> {
     inline void operator*=(const T &scalar) {for (size_t i = 0; i < size; i++) data[i] *= scalar;}
 
     inline void operator/=(const T &scalar) {for (size_t i = 0; i < size; i++) data[i] /= scalar;}
+
+    inline void operator<<=(const T &scalar){for (size_t i = 0; i < size; i++) data[i] <<= scalar;}
 
     inline DataContainer operator+(const T &scalar) const {
         DataContainer result(size);
@@ -272,7 +224,31 @@ struct DataContainer<T, 0> {
         for (size_t i = 0; i < size; i++) result.data[i] = data[i] / scalar;
         return result;
     }
+
+    inline void resize(const size_t &size) {
+        data = new T[size]{};
+    }
 };
+
+/**
+* @brief finds max value of a container 
+*/
+template <typename T, std::size_t Size>
+static constexpr inline T max(const DataContainer<T, Size> &container) {
+    T max = 0;
+    for(size_t i = 0; i < container.size; i++) if(max < container[i]) max = container[i];
+    return max;
+}
+
+/**
+* @brief finds min value of a container 
+*/
+template <typename T, std::size_t Size>
+static constexpr inline T min(const DataContainer<T, Size> &container) {
+    T min = container.data[0];
+    for(size_t i = 1; i < container.size; i++) if(min > container[i]) min = container[i];
+    return min;
+}
 
 template <std::size_t NewSize, typename T, std::size_t OldSize>
 static constexpr inline DataContainer<T, NewSize> resize(const DataContainer<T, OldSize> &container) {
