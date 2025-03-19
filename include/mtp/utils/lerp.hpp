@@ -27,19 +27,19 @@ static constexpr inline vector<T, N> lerp(const vector<T, N> &start, const vecto
     return start + (end-start)*factor;
 }
 
-template <std::size_t N, std::size_t AnchorPoints>
+template <std::size_t N, std::size_t AnchorPoints, typename T>
 struct lerp_data {
     static constexpr std::size_t POINTS_SIZE = AnchorPoints+2; 
-    vector<float, N> points[AnchorPoints+2]; /* (All Points) includes start and end point */
+    vector<T, N> points[AnchorPoints+2]; /* (All Points) includes start and end point */
 
-    lerp_data(const vector<float, N> &start_point, const vector<float, N> &end_point)
+    lerp_data(const vector<T, N> &start_point, const vector<T, N> &end_point)
     {
         points[0] = start_point;
         points[AnchorPoints+1] = end_point;
     }
 
-    inline vector<float, N>& first() {return points[0];}
-    inline vector<float, N>& last()  {return points[AnchorPoints+1];}
+    inline vector<T, N>& first() {return points[0];}
+    inline vector<T, N>& last()  {return points[AnchorPoints+1];}
 };
 
 /**
@@ -48,12 +48,12 @@ struct lerp_data {
 * @arg Order - The order of lagrange polynomial.
 * @arg N - Space dimension.
 */
-template<std::size_t N = 2, std::size_t Order = 1>
-struct lagrange_poly : public lerp_data<N, Order-1> {
-    float D[Order+1]; /* Denominators */
+template<std::size_t N = 2, std::size_t Order = 1, typename T = float>
+struct lagrange_poly : public lerp_data<N, Order-1, T> {
+    T D[Order+1]; /* Denominators */
 
-    lagrange_poly(const vector<float, N> &start_point, const vector<float, N> &end_point) : 
-        lerp_data<N, Order-1>(start_point, end_point)
+    lagrange_poly(const vector<T, N> &start_point, const vector<T, N> &end_point) : 
+        lerp_data<N, Order-1, T>(start_point, end_point)
     {
         update_denominators();
     }
@@ -64,7 +64,7 @@ struct lagrange_poly : public lerp_data<N, Order-1> {
     * @param index
     * @param point vector<float, N>
     */
-    void update_point(const std::size_t index, const vector<float, N> &point) {
+    void update_point(const std::size_t index, const vector<T, N> &point) {
         this->points[index] = point;
         update_denominators();
     }
@@ -96,10 +96,10 @@ struct lagrange_poly : public lerp_data<N, Order-1> {
     * @return vector<float, N>
     */
     template<std::size_t order = Order, typename std::enable_if_t<order==1, int> = 0>
-    inline vector<float, N> interp(const float& factor) {
-        const float x_new = mtpu::lerp(this->points[0].x, this->points[1].x, factor);
-        const float diff1 = x_new-this->points[0].x;
-        const float diff2 = x_new-this->points[1].x;
+    inline vector<T, N> interp(const float& factor) {
+        const T x_new = mtpu::lerp(this->points[0].x, this->points[1].x, factor);
+        const T diff1 = x_new-this->points[0].x;
+        const T diff2 = x_new-this->points[1].x;
         if constexpr (N==2) {
             return {
                 x_new,
@@ -108,8 +108,8 @@ struct lagrange_poly : public lerp_data<N, Order-1> {
                 this->points[1].y * diff1 / D[1]
             }; /* vector(x, y) */
         } else if constexpr (N==3) {
-            const float res1 = diff2 / D[0];
-            const float res2 = diff1 / D[1];
+            const T res1 = diff2 / D[0];
+            const T res2 = diff1 / D[1];
             return {
                 x_new,
 
@@ -127,11 +127,11 @@ struct lagrange_poly : public lerp_data<N, Order-1> {
     * @return vector<float, N>
     */
     template<std::size_t order = Order, typename std::enable_if_t<order==2, int> = 0>
-    inline vector<float, N> interp(const float& factor) {
-        const float x_new = mtpu::lerp(this->points[0].x, this->points[2].x, factor);
-        const float diff1 = x_new-this->points[0].x;
-        const float diff2 = x_new-this->points[1].x;
-        const float diff3 = x_new-this->points[2].x;
+    inline vector<T, N> interp(const float& factor) {
+        const T x_new = mtpu::lerp(this->points[0].x, this->points[2].x, factor);
+        const T diff1 = x_new-this->points[0].x;
+        const T diff2 = x_new-this->points[1].x;
+        const T diff3 = x_new-this->points[2].x;
         if constexpr (N==2) {
             return {
                 x_new,
@@ -141,9 +141,9 @@ struct lagrange_poly : public lerp_data<N, Order-1> {
                 this->points[2].y * (diff1 * diff2) / D[2]
             }; /* vector(x, y) */
         } else if constexpr (N==3) {
-            const float res1 = (diff2 * diff3) / D[0];
-            const float res2 = (diff1 * diff3) / D[1];
-            const float res3 = (diff1 * diff2) / D[2];
+            const T res1 = (diff2 * diff3) / D[0];
+            const T res2 = (diff1 * diff3) / D[1];
+            const T res3 = (diff1 * diff2) / D[2];
             return {
                 x_new,
 
@@ -164,10 +164,10 @@ struct lagrange_poly : public lerp_data<N, Order-1> {
     */
     template<std::size_t n = N, typename std::enable_if_t<n==2 && (Order > 2), int> = 0>
     inline vector2f interp(const float& factor) {
-        const float x_new = mtpu::lerp(this->points[0].x, this->points[this->points_size-1].x, factor);
-        float y_new = 0.0f;
+        const T x_new = mtpu::lerp(this->points[0].x, this->points[this->points_size-1].x, factor);
+        T y_new = 0.0f;
         for (std::size_t i = 0; i < this->points_size; ++i) {
-            float L_i = 1.0f, d = 1.0f;
+            T L_i = 1.0f, d = 1.0f;
             for (std::size_t j = 0; j < this->points_size; ++j) {
                 if (i != j) {
                     L_i *= (x_new - this->points[j].x);
@@ -184,16 +184,16 @@ struct lagrange_poly : public lerp_data<N, Order-1> {
     */
     template<std::size_t n = N, typename std::enable_if_t<n==3  && (Order > 2), int> = 0>
     vector3f interp(const float& factor) {
-        const float x_new = mtpu::lerp(this->points[0].x, this->points[this->POINTS_SIZE-1].x, factor);
-        float y_new = 0.0f, z_new = 0.0f;
+        const T x_new = mtpu::lerp(this->points[0].x, this->points[this->POINTS_SIZE-1].x, factor);
+        T y_new = 0.0f, z_new = 0.0f;
         for (std::size_t i = 0; i < this->POINTS_SIZE; ++i) {
-            float L_i = 1.0f;
+            T L_i = 1.0f;
             for (std::size_t j = 0; j < this->POINTS_SIZE; ++j) {
                 if (i != j) {
                     L_i *= x_new - this->points[j].x;
                 }
             }
-            const float div = (L_i / D[i]);
+            const T div = (L_i / D[i]);
             y_new += this->points[i].y * div;
             z_new += this->points[i].z * div;
         }
@@ -205,7 +205,7 @@ struct lagrange_poly : public lerp_data<N, Order-1> {
     * @param steps
     * @return fills array with interpolated vectors.
     */
-    void interp(vector<float, N>* array, const std::size_t &steps) {
+    void interp(vector<T, N>* array, const std::size_t &steps) {
         const float dx = 1.0f / steps;
         for (std::size_t i = 0; i < steps; ++i) array[i] = interp(i * dx);
     }
@@ -216,29 +216,29 @@ struct lagrange_poly : public lerp_data<N, Order-1> {
 * @arg Order - The order of bezier curve.
 * @arg N - Space dimension.
 */
-template <std::size_t Order, std::size_t N>
-struct bezier_curve : public lerp_data<N, Order-1> {
+template <std::size_t Order, std::size_t N, typename T>
+struct bezier_curve : public lerp_data<N, Order-1, T> {
     static_assert(Order!=1, "The order of bezier must greater than 1");
 
-    using lerp_data<N, Order-1>::lerp_data;
+    using lerp_data<N, Order-1, T>::lerp_data;
 
     /**
     * @param t value within range 0.0 - 1.0
     * @return vector<float, N>
     */
     template <std::size_t order = Order, typename std::enable_if_t<order == 2, int> = 0>
-    inline vector<float, N> interp(const float &t) {
-        const float x_new = mtpu::lerp(this->points[0].x, this->points[1].x, t);
-        const float dt = (1.0f - t);
+    inline vector<T, N> interp(const float &t) {
+        const T x_new = mtpu::lerp(this->points[0].x, this->points[1].x, t);
+        const T dt = (1.0f - t);
         if constexpr (N==2) {
             return {
                 x_new,
                 dt*dt * this->sp.y + 2.0f * t * dt * this->control_points[0].y + t*t * this->ep.y
             };
         } else if constexpr(N==3) {
-            const float dt2 = dt*dt;
-            const float t2 = t*t;
-            const float mul = 2.0f * t * dt;
+            const T dt2 = dt*dt;
+            const T t2 = t*t;
+            const T mul = 2.0f * t * dt;
             return {
                 x_new,
                 dt2 * this->sp.y + mul * this->control_points[0].y + t2 * this->ep.y,
@@ -252,11 +252,11 @@ struct bezier_curve : public lerp_data<N, Order-1> {
     * @return y_new
     */
     template <std::size_t order = Order, typename std::enable_if_t<order == 3, int> = 0>
-    inline float interp(const float &t) {
-        const float x_new = mtpu::lerp(this->points[0].x, this->points[2].x, t);
-        const float dt = (1.0f - t);
-        const float dt2= dt*dt;
-        const float t2 = t*t;
+    inline vector<T, N> interp(const float &t) {
+        const T x_new = mtpu::lerp(this->points[0].x, this->points[2].x, t);
+        const T dt = (1.0f - t);
+        const T dt2= dt*dt;
+        const T t2 = t*t;
         if constexpr (N==2) {
             return {
                 x_new,
@@ -265,11 +265,11 @@ struct bezier_curve : public lerp_data<N, Order-1> {
                 3.0f * t2 * dt * this->control_points[1].y + t2*t * this->ep.y
             };
         } else if constexpr (N==3) {
-            const float dt3  = dt2*dt;
-            const float t3   = t2*t;
-            const float dtt3 = 3.0f * dt*t;
-            const float mul1 = dtt3*dt;
-            const float mul2 = dtt3*t;
+            const T dt3  = dt2*dt;
+            const T t3   = t2*t;
+            const T dtt3 = 3.0f * dt*t;
+            const T mul1 = dtt3*dt;
+            const T mul2 = dtt3*t;
             return {
                 x_new,
 
@@ -287,7 +287,7 @@ struct bezier_curve : public lerp_data<N, Order-1> {
     * @param steps
     * @return fills vector with interpolated values.
     */
-    void interp(vector<float, N>* array, const std::size_t &steps) {
+    void interp(vector<T, N>* array, const std::size_t &steps) {
         const float dx = 1.0f/steps;
         for (std::size_t i = 0; i < steps; ++i) array[i] = interp(i * dx);
     }

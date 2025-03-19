@@ -59,7 +59,7 @@ constexpr double pow(double base, double exponent) {
     return int_result * frac_result;
 }
 
-constexpr inline size_t pow10(size_t p) {
+constexpr inline std::size_t pow10(std::size_t p) {
     return (p == 0) ? 1 : 10 * pow10(p - 1);
 }
 
@@ -79,14 +79,14 @@ T constexpr inline sqrt(const T &x)
         : std::numeric_limits<T>::quiet_NaN();
 }
 
-constexpr inline std::size_t factorial(size_t n) {
+constexpr inline std::size_t factorial(std::size_t n) {
     unsigned long long result = 1;
     while (n > 1) result *= n--;
     return result;
 }
 
 /* Returns precomputed factorial in range 0 - 20. */
-constexpr inline const std::size_t& factorial_precomputed(size_t n) {
+constexpr inline const std::size_t& factorial_precomputed(std::size_t n) {
     return fact_table[n];
 }
 

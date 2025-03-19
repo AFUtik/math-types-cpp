@@ -2,14 +2,15 @@
 #define MULTIERP_HPP
 
 #include "lerp.hpp"
+#include "../matrix.hpp"
 
 namespace mtpu {
 
-template <std::size_t N>
+template <typename T = float>
 struct blerp_data { /* Bilinear Interpolation Data */
-    vector2f p1, p2;
+    vector<T, 2> p1, p2;
 
-    float Q1, Q2, Q3, Q4;
+    T Q1, Q2, Q3, Q4;
     bool normalize = false;
 
     /*                      SCHEME 
@@ -19,17 +20,17 @@ struct blerp_data { /* Bilinear Interpolation Data */
     * p1(X: 0.0, Y: 0.0) - Q1=====Q2 - (X: 1.0, Y: 0.0)
     */
 
-    constexpr blerp_data(const float &Q1, const float &Q2,
-                         const float &Q3, const float &Q4) :
+    constexpr blerp_data(const T &Q1, const T &Q2,
+                         const T &Q3, const T &Q4) :
         Q1(Q1), Q2(Q2), Q3(Q3), Q4(Q4)
     {}
 };
 
-template <std::size_t N, std::size_t AnchorPoints>
+template <typename T = float>
 struct trilerp_data {  /* Trilinear Interpolation Data */
-    vector3f p1, p2;
+    vector<T, 3> p1, p2;
 
-    float Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8;
+    T Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8;
     bool normalize = false;
 
     /*                     SCHEME
@@ -43,17 +44,26 @@ struct trilerp_data {  /* Trilinear Interpolation Data */
     *  p1(X: 0.0, Y: 0.0) - Q1        Q2 - (X: 1.0, Y: 0.0)
     */
 
-    constexpr trilerp_data(const float &Q1, const float &Q2,
-                           const float &Q3, const float &Q4,
-                           const float &Q5, const float &Q6,
-                           const float &Q7, const float &Q8) :
+    constexpr trilerp_data(const T &Q1, const T &Q2,
+                           const T &Q3, const T &Q4,
+                           const T &Q5, const T &Q6,
+                           const T &Q7, const T &Q8) :
     Q1(Q1), Q2(Q2), Q3(Q3), Q4(Q4), Q5(Q5), Q6(Q6), Q7(Q7), Q8(Q8) {}
 };
 
-template <typename std::size_t N = 2>
-struct blerp : public blerp_data<N> {
-    void interp() {
+template <typename T = float>
+struct blerp : public blerp_data<T> {
+    using blerp_data<T>::blerp_data;
 
+    T interp(const vector<T, 2> &vec) {
+
+    }
+};
+
+template <typename T = float>
+struct tlerp : public blerp_data<T> {
+    T interp(const vector<T, 3> &vec) {
+        
     }
 };
 
