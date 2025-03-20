@@ -5,6 +5,7 @@
 
 # Custom
 
+.cache
 .vscode
 src/
 main

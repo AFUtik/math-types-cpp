@@ -6,34 +6,31 @@
 
 namespace mtpu {
 
-template <typename T = float>
+template <typename T = float, size_t N = 0, size_t M = N>
 struct blerp_data { /* Bilinear Interpolation Data */
     vector<T, 2> p1, p2;
-
-    T Q1, Q2, Q3, Q4;
-    bool normalize = false;
-
-    /*                      SCHEME 
+    matrix<T, N, M> grid; // Can be static or dynamic //
+    
+    /*                     GRID SCHEME
     *   (X: 0.0, Y: 1.0) - Q3=====Q4 - p2(X: 1.0, Y: 1.0)
     *                      ||     ||
     *                      ||     ||
     * p1(X: 0.0, Y: 0.0) - Q1=====Q2 - (X: 1.0, Y: 0.0)
     */
 
-    constexpr blerp_data(const T &Q1, const T &Q2,
-                         const T &Q3, const T &Q4) :
-        Q1(Q1), Q2(Q2), Q3(Q3), Q4(Q4)
-    {}
+    constexpr blerp_data(const vector2<T> &start, const vector2<T> &end) : p1(start), p2(end) {}
+
+    constexpr blerp_data(const T& x, const T& y) : p1(0), p2(x, y) {}
+    
+    constexpr blerp_data() : p1(0), p2(1) {}
 };
 
-template <typename T = float>
-struct trilerp_data {  /* Trilinear Interpolation Data */
+template <typename T = float, size_t W = 0, size_t H = W, size_t V = H>
+struct tlerp_data {  /* Trilinear Interpolation Data */
     vector<T, 3> p1, p2;
+    matrix3d<T, W, H, V> grid;
 
-    T Q1, Q2, Q3, Q4, Q5, Q6, Q7, Q8;
-    bool normalize = false;
-
-    /*                     SCHEME
+    /*                   GRID SCHEME
     *                    Q7------Q8 - p2(X: 1.0, Y: 1.0, Z: 1.0)
     *                     |\      | \
     *  (X: 0.0, Y: 1.0) - | Q3----|--\Q4 - (X: 1.0, Y: 1.0)
@@ -44,11 +41,11 @@ struct trilerp_data {  /* Trilinear Interpolation Data */
     *  p1(X: 0.0, Y: 0.0) - Q1        Q2 - (X: 1.0, Y: 0.0)
     */
 
-    constexpr trilerp_data(const T &Q1, const T &Q2,
-                           const T &Q3, const T &Q4,
-                           const T &Q5, const T &Q6,
-                           const T &Q7, const T &Q8) :
-    Q1(Q1), Q2(Q2), Q3(Q3), Q4(Q4), Q5(Q5), Q6(Q6), Q7(Q7), Q8(Q8) {}
+    constexpr tlerp_data(const vector3<T> &start, const vector3<T> &end) : p1(start), p2(end) {}
+
+    constexpr tlerp_data(const T& x, const T& y, const T& z) : p1(0), p2(x, y, z) {}
+    
+    constexpr tlerp_data() : p1(0), p2(1) {}
 };
 
 template <typename T = float>
@@ -62,6 +59,8 @@ struct blerp : public blerp_data<T> {
 
 template <typename T = float>
 struct tlerp : public blerp_data<T> {
+    using tlerp_data<T>::trilerp_data;
+
     T interp(const vector<T, 3> &vec) {
         
     }
