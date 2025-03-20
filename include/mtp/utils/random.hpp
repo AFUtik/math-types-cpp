@@ -20,12 +20,12 @@ void random(DataContainer<T, Size> &container,
 {
     if constexpr (std::is_integral_v<T>) {
         std::uniform_int_distribution<T> dist(min, max);
-        for (size_t i = 0; i < container.size; ++i) {
+        for (size_t i = 0; i < container.size(); ++i) {
             container[i] = dist(gen);
         }
     } else if constexpr (std::is_floating_point_v<T>) {
         std::uniform_real_distribution<T> dist(min, max);
-        for (size_t i = 0; i < container.size; ++i) {
+        for (size_t i = 0; i < container.size(); ++i) {
             container[i] = dist(gen);
         }
     } else {

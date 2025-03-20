@@ -17,8 +17,7 @@ struct DataContainer {
     };
 
     static constexpr float EPSILON = 1.0f / static_cast<float>(mtpu::pow10(Precition));
-    static constexpr std::size_t size = Size;
-    
+
     constexpr DataContainer() : data{} 
     {
 
@@ -86,7 +85,7 @@ struct DataContainer {
 
     constexpr inline void operator/=(const T &scalar) noexcept {for (size_t i = 0; i < Size; i++) data[i] /= scalar;}
 
-    constexpr inline void operator<<=(const T &scalar) noexcept {for (size_t i = 0; i < size; i++) data[i] <<= scalar;}
+    constexpr inline void operator<<=(const T &scalar) noexcept {for (size_t i = 0; i < Size; i++) data[i] <<= scalar;}
 
     /* Comparison operators. Returns only bitmask */
 
@@ -160,24 +159,25 @@ struct DataContainer {
             return bitmask;
         }
     }
+
+    constexpr inline size_t size() const noexcept {return Size;}
 };
 
 template <typename T>
 struct DataContainer<T, 0> {
     T* data;
-    size_t size = 0;
 
-    DataContainer() : data(nullptr), size(0)
+    DataContainer() : data(nullptr), sz(0)
     {
 
     }
 
-    DataContainer(const std::size_t& size) : data(new T[size]()), size(size)
+    DataContainer(const std::size_t& size) : data(new T[size]()), sz(size)
     {
 
     }
 
-    DataContainer(const std::size_t& size, const T& scalar) : data(new T[size]), size(size)
+    DataContainer(const std::size_t& size, const T& scalar) : data(new T[size]), sz(size)
     {
         for(size_t i = 0; i < size; i++) data[i] = scalar;
     }
@@ -191,43 +191,47 @@ struct DataContainer<T, 0> {
 
     constexpr inline const T& operator[](const std::size_t &index) const {return data[index];}
 
-    inline void operator+=(const T &scalar) {for (size_t i = 0; i < size; i++) data[i] += scalar;}
+    inline void operator+=(const T &scalar) {for (size_t i = 0; i < sz; i++) data[i] += scalar;}
 
-    inline void operator-=(const T &scalar) {for (size_t i = 0; i < size; i++) data[i] -= scalar;}
+    inline void operator-=(const T &scalar) {for (size_t i = 0; i < sz; i++) data[i] -= scalar;}
 
-    inline void operator*=(const T &scalar) {for (size_t i = 0; i < size; i++) data[i] *= scalar;}
+    inline void operator*=(const T &scalar) {for (size_t i = 0; i < sz; i++) data[i] *= scalar;}
 
-    inline void operator/=(const T &scalar) {for (size_t i = 0; i < size; i++) data[i] /= scalar;}
+    inline void operator/=(const T &scalar) {for (size_t i = 0; i < sz; i++) data[i] /= scalar;}
 
-    inline void operator<<=(const T &scalar){for (size_t i = 0; i < size; i++) data[i] <<= scalar;}
+    inline void operator<<=(const T &scalar){for (size_t i = 0; i < sz; i++) data[i] <<= scalar;}
 
     inline DataContainer operator+(const T &scalar) const {
-        DataContainer result(size);
-        for (size_t i = 0; i < size; i++) result.data[i] = data[i] + scalar;
+        DataContainer result(sz);
+        for (size_t i = 0; i < sz; i++) result.data[i] = data[i] + scalar;
         return result;
     }
 
     inline DataContainer operator-(const T &scalar) const {
-        DataContainer result(size);
-        for (size_t i = 0; i < size; i++) result.data[i] = data[i] - scalar;
+        DataContainer result(sz);
+        for (size_t i = 0; i < sz; i++) result.data[i] = data[i] - scalar;
         return result;
     }
 
     inline DataContainer operator*(const T &scalar) const {
-        DataContainer result(size);
-        for (size_t i = 0; i < size; i++) result.data[i] = data[i] * scalar;
+        DataContainer result(sz);
+        for (size_t i = 0; i < sz; i++) result.data[i] = data[i] * scalar;
         return result;
     }
 
     inline DataContainer operator/(const T &scalar) const {
-        DataContainer result(size);
-        for (size_t i = 0; i < size; i++) result.data[i] = data[i] / scalar;
+        DataContainer result(sz);
+        for (size_t i = 0; i < sz; i++) result.data[i] = data[i] / scalar;
         return result;
     }
 
     inline void resize(const size_t &size) {
         data = new T[size]{};
     }
+
+    inline const size_t& size() const noexcept {return sz;}
+private:
+    size_t sz = 0;
 };
 
 /**
@@ -236,7 +240,7 @@ struct DataContainer<T, 0> {
 template <typename T, std::size_t Size>
 static constexpr inline T max(const DataContainer<T, Size> &container) {
     T max = 0;
-    for(size_t i = 0; i < container.size; i++) if(max < container[i]) max = container[i];
+    for(size_t i = 0; i < container.size(); i++) if(max < container[i]) max = container[i];
     return max;
 }
 
@@ -244,14 +248,15 @@ static constexpr inline T max(const DataContainer<T, Size> &container) {
 * @brief finds min value of a container 
 */
 template <typename T, std::size_t Size>
-static constexpr inline T min(const DataContainer<T, Size> &container) {
+constexpr inline T min(const DataContainer<T, Size> &container) {
     T min = container.data[0];
-    for(size_t i = 1; i < container.size; i++) if(min > container[i]) min = container[i];
+    for(size_t i = 1; i < container.size(); i++) if(min > container[i]) min = container[i];
     return min;
 }
 
+/* works with predefined sizes */
 template <std::size_t NewSize, typename T, std::size_t OldSize>
-static constexpr inline DataContainer<T, NewSize> resize(const DataContainer<T, OldSize> &container) {
+constexpr inline DataContainer<T, NewSize> static_resize(const DataContainer<T, OldSize> &container) noexcept {
     DataContainer<T, NewSize> new_container;
     
     for(std::size_t i = 0; i < std::min(OldSize, NewSize); i++) new_container.data[i] = container.data[i];
@@ -259,7 +264,7 @@ static constexpr inline DataContainer<T, NewSize> resize(const DataContainer<T, 
 }
 
 template <typename T, typename CastType, std::size_t Size>
-static constexpr inline DataContainer<CastType, Size> cast(const DataContainer<T, Size> &container) {
+constexpr inline DataContainer<CastType, Size> cast(const DataContainer<T, Size> &container) noexcept {
     DataContainer<CastType, Size> new_container;
     for(std::size_t i = 0; i < Size; i++) new_container.data[i] = static_cast<CastType>(container.data[i]);
     return new_container;

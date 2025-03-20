@@ -96,7 +96,10 @@ struct matrix : public DataContainer<T, N*M> {
             }
         }
         return new_mat;
-    } 
+    }
+
+    constexpr inline size_t width() const noexcept {return N;}
+    constexpr inline size_t height() const noexcept{return M;}
 };
 
 template <typename T, std::size_t N, std::size_t M>
@@ -227,8 +230,8 @@ struct matrix<T, 0> : public DataContainer<T, 0> {
         this->m = m;
     }
 
-    inline const size_t& n_size() const noexcept {return this->n;}
-    inline const size_t& m_size() const noexcept {return this->m;}
+    inline const size_t& width() const noexcept {return this->n;}
+    inline const size_t& height() const noexcept{return this->m;}
 private:
     size_t n = 0;
     size_t m = 0;
