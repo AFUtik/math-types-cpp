@@ -35,6 +35,10 @@ struct matrix : public DataContainer<T, N*M> {
         return this->data[y*N+x];
     }
 
+    constexpr inline const T& get(const size_t& x, const size_t& y) const {
+        return this->data[y * N + x];
+    }
+
     vector<T, N> operator*(const vector<T, N>& vec) const noexcept {
         vector<T, N> new_vec;
         for (size_t i = 0; i < M; i++) {
@@ -159,6 +163,9 @@ struct matrix<T, 0> : public DataContainer<T, 0> {
         return this->data[y*n+x];
     }
 
+    constexpr inline std::size_t width()  const noexcept { return n; };
+    constexpr inline std::size_t height() const noexcept { return m; };
+
     vector<T, 0> operator*(const vector<T, 0>& vec) const {
         vector<T, 0> new_vec(n);
         for (size_t i = 0; i < m; i++) {
@@ -278,6 +285,10 @@ struct matrix3d : public DataContainer<T, W*H*V> {
     constexpr inline T& get(const size_t& x, const size_t& y, const size_t& z) {
         return this->data[y*WH+z*W+x];
     }
+
+    constexpr inline std::size_t width()  const noexcept { return W; };
+    constexpr inline std::size_t height() const noexcept { return H; };
+    constexpr inline std::size_t volume() const noexcept { return V; };
 };
 
 template <typename T>
@@ -295,6 +306,10 @@ struct matrix3d<T, 0> : public DataContainer<T, 0> {
     inline T& get(const size_t& x, const size_t& y, const size_t& z) {
         return this->data[y*w*h+z*w+x];
     }
+
+    inline const std::size_t& width()  const noexcept { return w; };
+    inline const std::size_t& height() const noexcept { return h; };
+    inline const std::size_t& volume() const noexcept { return v; };
 private:
     std::size_t w = 0;
     std::size_t h = 0;
