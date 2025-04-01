@@ -5,6 +5,7 @@
 
 # Custom
 
+MathTypes/
 .cache
 .vscode
 src/
