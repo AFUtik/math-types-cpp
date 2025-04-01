@@ -67,7 +67,7 @@ struct blerp : public blerp_data<T, N, M> {
 
 template <typename T = float, size_t W = 0, size_t H = W, size_t V = H>
 struct tlerp : public tlerp_data<T, W, H, V> {
-    using tlerp_data<T, W, H, V>::trilerp_data;
+    using tlerp_data<T, W, H, V>::tlerp_data;
 
     T interp(const vector<T, 3> &vec) const {
         const unsigned long long fx = vec.x / (this->p2.x - this->p1.x) / this->grid.width();  // floor x

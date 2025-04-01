@@ -31,11 +31,11 @@ struct matrix : public DataContainer<T, N*M> {
     * @param y Height
     * @return Returns T object.
     */
-    constexpr inline T& get(const size_t& x, const size_t& y) {
+    constexpr inline T& get(size_t x, size_t y) {
         return this->data[y*N+x];
     }
 
-    constexpr inline const T& get(const size_t& x, const size_t& y) const {
+    constexpr inline const T& get(size_t x, size_t y) const {
         return this->data[y * N + x];
     }
 
@@ -282,7 +282,11 @@ struct matrix3d : public DataContainer<T, W*H*V> {
     * @param y Height
     * @param z Volume
     */
-    constexpr inline T& get(const size_t& x, const size_t& y, const size_t& z) {
+    constexpr inline T& get(size_t x, size_t y, size_t z) {
+        return this->data[y*WH+z*W+x];
+    }
+
+    constexpr inline const T& get(size_t x, size_t y, size_t z) const {
         return this->data[y*WH+z*W+x];
     }
 
@@ -304,6 +308,10 @@ struct matrix3d<T, 0> : public DataContainer<T, 0> {
     * @param z Volume
     */
     inline T& get(const size_t& x, const size_t& y, const size_t& z) {
+        return this->data[y*w*h+z*w+x];
+    }
+
+    inline const T& get(const size_t& x, const size_t& y, const size_t& z) const {
         return this->data[y*w*h+z*w+x];
     }
 
