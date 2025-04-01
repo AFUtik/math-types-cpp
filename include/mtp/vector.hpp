@@ -68,42 +68,42 @@ struct vector<T, 0> : public DataContainer<T, 0, 6> {
     using DataContainer<T, 0>::DataContainer;
 
     inline void operator+=(const vector& other) {
-        for (size_t i = 0; i < this->size; i++) this->data[i] += other.data[i];
+        for (size_t i = 0; i < this->__size; i++) this->data[i] += other.data[i];
     }
 
     inline void operator-=(const vector& other) {
-        for (size_t i = 0; i < this->size; i++) this->data[i] -= other.data[i];
+        for (size_t i = 0; i < this->__size; i++) this->data[i] -= other.data[i];
     }
 
     inline void operator*=(const vector& other) {
-        for (size_t i = 0; i < this->size; i++) this->data[i] *= other.data[i];
+        for (size_t i = 0; i < this->__size; i++) this->data[i] *= other.data[i];
     }
 
     inline void operator/=(const vector& other) {
-        for (size_t i = 0; i < this->size; i++) this->data[i] /= other.data[i];
+        for (size_t i = 0; i < this->__size; i++) this->data[i] /= other.data[i];
     }
 
     inline vector operator+(const vector& other) const {
-        vector result(this->size);
-        for (size_t i = 0; i < this->size; i++) result.data[i] = this->data[i] + other.data[i];
+        vector result(this->__size);
+        for (size_t i = 0; i < this->__size; i++) result.data[i] = this->data[i] + other.data[i];
         return result;
     }
 
     inline vector operator-(const vector& other) const {
-        vector result(this->size);
-        for (size_t i = 0; i < this->size; i++) result.data[i] = this->data[i] - other.data[i];
+        vector result(this->__size);
+        for (size_t i = 0; i < this->__size; i++) result.data[i] = this->data[i] - other.data[i];
         return result;
     }
     
     inline vector operator*(const vector& other) const {
-        vector result(this->size);
-        for (size_t i = 0; i < this->size; i++) result.data[i] = this->data[i] * other.data[i];
+        vector result(this->__size);
+        for (size_t i = 0; i < this->__size; i++) result.data[i] = this->data[i] * other.data[i];
         return result;
     }
 
     inline vector operator/(const vector& other) const {
         vector result(this->size);
-        for (size_t i = 0; i < this->size; i++) result.data[i] = this->data[i] / other.data[i];
+        for (size_t i = 0; i < this->__size; i++) result.data[i] = this->data[i] / other.data[i];
         return result;
     }
 };
