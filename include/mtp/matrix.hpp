@@ -163,9 +163,6 @@ struct matrix<T, 0> : public DataContainer<T, 0> {
         return this->data[y*n+x];
     }
 
-    constexpr inline std::size_t width()  const noexcept { return n; };
-    constexpr inline std::size_t height() const noexcept { return m; };
-
     vector<T, 0> operator*(const vector<T, 0>& vec) const {
         vector<T, 0> new_vec(n);
         for (size_t i = 0; i < m; i++) {
