@@ -16,13 +16,16 @@ struct matrix : public DataContainer<T, N*M> {
     }
 
     /**
-    * @brief Converts matrix row to vector.
-    * @param row index of a row. (starts with zero)
+    * @brief Converts matrix to vectors.
     */
-    constexpr inline vector<T*, N> vector_view(const std::size_t &row) {
-        vector<T*, N> new_vector;
-        for(size_t i = 0; i < N; i++) new_vector[i] = &this->data[row*N+i];
-        return new_vector;
+    constexpr vector<vector<T, N>, M> vector_view() {
+        vector<vector<T, N>, M> vectors;
+        for (size_t i = 0; i < M; i++) {
+            for (size_t j = 0; j < N; j++) {
+                vectors.data[i].data[j] = this->data[i * N + j];
+            }
+        }
+        return vectors;
     }
 
     /**
@@ -31,13 +34,8 @@ struct matrix : public DataContainer<T, N*M> {
     * @param y Height
     * @return Returns T object.
     */
-    constexpr inline T& get(size_t x, size_t y) {
-        return this->data[y*N+x];
-    }
-
-    constexpr inline const T& get(size_t x, size_t y) const {
-        return this->data[y * N + x];
-    }
+    constexpr inline T& get(size_t x, size_t y) {return this->data[y*N+x];}
+    constexpr inline const T& get(size_t x, size_t y) const {return this->data[y * N + x];}
 
     vector<T, N> operator*(const vector<T, N>& vec) const noexcept {
         vector<T, N> new_vec;
@@ -159,9 +157,8 @@ struct matrix<T, 0> : public DataContainer<T, 0> {
     * @param y Height
     * @return Returns T object.
     */
-    constexpr inline T& get(const size_t& x, const size_t& y) {
-        return this->data[y*n+x];
-    }
+    constexpr inline T& get(size_t x, size_t y) { return this->data[y * n + x]; }
+    constexpr inline const T& get(size_t x, size_t y) const { return this->data[y * n + x]; }
 
     vector<T, 0> operator*(const vector<T, 0>& vec) const {
         vector<T, 0> new_vec(n);
@@ -235,7 +232,7 @@ struct matrix<T, 0> : public DataContainer<T, 0> {
     }
 
     inline const size_t& width() const noexcept {return this->n;}
-    inline const size_t& height() const noexcept{return this->m;}
+    inline const size_t& height()const noexcept {return this->m;}
 private:
     size_t n = 0;
     size_t m = 0;
@@ -417,8 +414,6 @@ struct matrix_csr : matrix<T, N, M> {
         return new_mat;
     }
 };
-
-
 
 using matrix4x3 = matrix<float, 4, 3>;
 using matrix3x4 = matrix<float, 3, 4>;

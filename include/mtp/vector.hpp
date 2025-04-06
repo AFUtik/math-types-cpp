@@ -150,6 +150,7 @@ using vector2f = vector<float, 2>;
 using vector3f = vector<float, 3>;
 using vector4f = vector<float, 4>;
 
+
 template <typename T> using vector2 = vector<T, 2>;
 template <typename T> using vector3 = vector<T, 3>;
 template <typename T> using vector4 = vector<T, 4>;

@@ -10,13 +10,58 @@ using namespace mtp;
 namespace mtpu {
 
 template<typename T>
-struct transform {
-    matrix4<T> mm = {
+union transform3 {
+    matrix4<T> model = {
         1, 0, 0, 0,
         0, 1, 0, 0,
         0, 0, 1, 0,
         0, 0, 0, 1
     }; /* Defualt Model Matrix */
+    struct {
+        T rot_xx, rot_yx, rot_zx, x;
+        T rot_xy, rot_yy, rot_zy, y;
+        T rot_xz, rot_yz, rot_zz, z;
+        T gx, gy, gz, gw;
+    };
+
+    vector4<T> gxyzw() { return { gx, gy, gz, gw }; };
+    vector3<T> gxyz()  { return { gx, gy, gz }; };
+
+    vector3<T> xyz() { return { x, y, z }; };
+    vector2<T> xy()  { return { x, y }; };
+
+    vector3<T> axis_x() { return { rot_xx, rot_xy, rot_yz }; }
+    vector3<T> axis_y() { return { rot_yx, rot_yy, rot_yz }; }
+    vector3<T> axis_z() { return { rot_zx, rot_zy, rot_zz }; }
+    matrix3<T> rot_mat(){ return { rot_xx, rot_yx, rot_zx,
+                                   rot_xy, rot_yy, rot_zy,
+                                   rot_xz, rot_yz, rot_zz }; }
+};
+
+template<typename T>
+union transform2 {
+    matrix3<T> model = {
+        1, 0, 0,
+        0, 1, 0,
+        0, 0, 1
+    }; /* Defualt Model Matrix */
+    struct {
+        T rot_xx, rot_yx, x;
+        T rot_xy, rot_yy, y;
+        T gx, gy, gz;
+    };
+
+    vector3<T> gxyz() { return { gx, gy, gz }; };
+    vector2<T> gxy()  { return { gx, gy }; };
+
+    vector2<T> xy() { return { x, y }; };
+
+    vector2<T> axis_x() { return { rot_xx, rot_xy}; }
+    vector2<T> axis_y() { return { rot_yx, rot_yy}; }
+    matrix2<T> rot_mat() {
+        return { rot_xx, rot_yx,
+                 rot_xy, rot_yy};
+    }
 };
 
 /* Position tranformations */
@@ -135,6 +180,8 @@ constexpr static matrix<T, 4> orthographic(float left, float right, float bottom
     result.data[15] = 1.0f;
     return result;
 };
+
+using transform = transform3<float>;
 
 }
 

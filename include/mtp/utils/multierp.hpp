@@ -81,7 +81,7 @@ struct blerp : public blerp_data<T, N, M> {
             this->grid.get(fx + 1, fy)     * (x - this->p1.x) * (this->p2.y - y) +
             this->grid.get(fx + 1, fy + 1) * (this->p2.x - x) * (y - this->p1.y) +
             this->grid.get(fx, fy + 1)     * (x - this->p1.x) * (y - this->p1.y)
-            );
+        );
     }
 
     template <size_t N, size_t M>
@@ -194,6 +194,21 @@ struct tlerp : public tlerp_data<T, W, H, V> {
                 }
             }
         }
+    }
+
+    matrix3d<T, 0> discrete(size_t szx, size_t szy, size_t szz) {
+        matrix3d<T, 0> mat;
+        const T dx = this->p2.x / (szx - 1);
+        const T dy = this->p2.y / (szy - 1);
+        const T dz = this->p2.z / (szz - 1);
+        for (size_t cx = 0; cx < szx; cx++) {
+            for (size_t cy = 0; cy < szy; cy++) {
+                for (size_t cz = 0; cz < szz; cz++) {
+                    mat.get(cx, cy, cz) = interp(cx * dx, cy * dy, cz * dz);
+                }
+            }
+        }
+        return mat;
     }
 };
 
