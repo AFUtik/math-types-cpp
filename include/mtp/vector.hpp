@@ -1,3 +1,14 @@
+/**
+* @file vector.hpp
+* @brief MathType File.
+* @author AFUtik
+* @date 2025-07-04
+* @version v1.0.0-dev
+* @copyright MIT
+*
+* @details Static vector realization and dynamic vector realization.
+*/
+
 #ifndef VECTOR_HPP
 #define VECTOR_HPP
 

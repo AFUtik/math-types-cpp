@@ -1,3 +1,14 @@
+/**
+* @file matrix.hpp
+* @brief MathType File.
+* @author AFUtik
+* @date 2025-07-04
+* @version v1.0.0-dev
+* @copyright MIT
+*
+* @details Static matrix realization and dynamic matrix realization.
+*/
+
 #ifndef MATRIX_HPP
 #define MATRIX_HPP
 

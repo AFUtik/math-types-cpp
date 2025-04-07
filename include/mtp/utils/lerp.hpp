@@ -1,3 +1,14 @@
+/**
+* @file lerp.hpp
+* @brief MathType Utility File.
+* @author AFUtik
+* @date 2025-07-04
+* @version v1.0.0-dev
+* @copyright MIT
+* 
+* @details Provides different types of linear intepolation.
+*/
+
 #ifndef LERP_HPP
 #define LERP_HPP
 
@@ -66,55 +77,54 @@ struct interp_funcs {
 * Linear Interpolation data. Contains all points of interpolation.
 * Can only store the predefined amount of points in the template.
 * 
-* @arg N - Space dimension.
-* @arg AnchorPoints - The number of anchor points.
-* @arg T - 
+* @tparam N - Space dimension.
+* @tparam AnchorPoints - The number of anchor points.
+* @tparam T - 
 */
-template <std::size_t N, std::size_t AnchorPoints, typename T>
+template <typename T, size_t N, size_t Order>
 struct lerp_data : public interp_funcs<T> {
-    static constexpr std::size_t points_size = AnchorPoints + 2;
-    vector<T, N> points[AnchorPoints + 2]; /* (All Points) includes start and end point */
+    static constexpr size_t points_size = Order + 1;
+    vector<T, N> points[points_size]; /* (All Points) includes start and end point */
 
     lerp_data(const vector<T, N>& start_point, const vector<T, N>& end_point)
     {
         points[0] = start_point;
-        points[AnchorPoints + 1] = end_point;
+        points[Order] = end_point;
     }
 
     lerp_data()
     {
         points[0] = vector<T, N>(0);
-        points[AnchorPoints + 1] = vector<T, N>(1);
+        points[Order] = vector<T, N>(1);
     }
 
     inline vector<T, N>& first() { return points[0]; }
-    inline vector<T, N>& last()  { return points[AnchorPoints + 1]; }
-
+    inline vector<T, N>& last()  { return points[Order]; }
 };
 
 /*
 * Dynamic Linear Interpolation data. Contains all points of interpolation.
 * The number of points can be modified.
 */
-template <std::size_t N, typename T>
-struct dynamic_lerp_data : public interp_funcs<T> {
-    vector<T, N>* points;
+template <typename T, size_t N>
+struct lerp_data<T, N, 0> : public interp_funcs<T> {
+    vector<T, N>* points = nullptr;
     size_t points_size = 2;
 
-    dynamic_lerp_data(const vector<T, N>& start_point, const vector<T, N>& end_point)
+    lerp_data(const vector<T, N>& start_point, const vector<T, N>& end_point) : points(new T[2])
     {
         points[0] = start_point;
         points[1] = end_point;
     }
 
-    dynamic_lerp_data(const vector<T, N>& start_point, const vector<T, N>& end_point, size_t anchor_points)
+    lerp_data(const vector<T, N>& start_point, const vector<T, N>& end_point, size_t anchor_points) : points(new T[anchor_points+2])
     {
         points_size = anchor_points + 2;
         points[0] = start_point;
         points[1+anchor_points] = end_point;
     }
 
-    dynamic_lerp_data()
+    lerp_data() : points(new T[2])
     {
         points[0] = vector<T, N>(0);
         points[1] = vector<T, N>(1);
@@ -122,28 +132,57 @@ struct dynamic_lerp_data : public interp_funcs<T> {
 
     inline vector<T, N>& first() { return points[0]; }
     inline vector<T, N>& last()  { return points[points_size - 1]; }
+
+    /* Mutate Functions */
+
+    void add(const vector<T, N> &vec) {}
+    void insert(const vector<T, N>& vec, size_t index) {}
+
+    void remove(size_t index) {}
+    void pop_back() {}
+    void pop_front() {}
+
+    void resize(size_t new_size) {}
 };
+
+template <typename T, size_t Order>
+vector<T, 2>& min(lerp_data<T, 2, Order>& ldata) {
+    vector<T, 2>& min = ldata.points[0];
+    for (size_t i = 1; i < ldata.points_size; i++) {
+        if (ldata.points[i].y < min.y) {
+            min = ldata.points[i];
+        }
+    }
+    return min;
+}
+
+template <typename T, size_t Order>
+vector<T, 2>& max(lerp_data<T, 2, Order>& ldata) {
+    vector<T, 2>& max = ldata.points[0];
+    for (size_t i = 1; i < ldata.points_size; i++) {
+        if (ldata.points[i].y > max.y) {
+            max = ldata.points[i];
+        }
+    }
+    return max;
+}
 
 /**
 * @brief The realization of langrange polynomial. Efficiently interpolates
          values with order 2.
 * @tparam Order - The order of lagrange polynomial.
 * @tparam N - Space dimension.
-* @tparam Factor - Determines if the parameter is normalized.
-* @tparam DataType - static or dynamic
 */
 template <
+    typename T = float,
     std::size_t N = 2,
-    std::size_t Order = 2,
-    typename T = float, 
-    bool Factor = true,
-    typename DataType = struct lerp_data<N, Order - 1, T>
+    std::size_t Order = 2
 >
-struct lagrange_poly : public DataType {
+struct lagrange_poly : public lerp_data<N, Order, T> {
     static_assert(Order != 1, "The order of lagrange poly must greater than 1");
     T D[Order + 1]; /* Denominators */
 
-    lagrange_poly(const vector<T, N>& start_point, const vector<T, N>& end_point) : DataType(start_point, end_point)
+    lagrange_poly(const vector<T, N>& start_point, const vector<T, N>& end_point) : lerp_data<T, Order, T>(start_point, end_point)
     {
         update_denominators();
     }
@@ -161,9 +200,9 @@ struct lagrange_poly : public DataType {
 
     void update_denominators() {
         if constexpr (Order > 2 || Order == 0) {
-            for (std::size_t i = 0; i < this->POINTS_SIZE; ++i) {
+            for (std::size_t i = 0; i < this->points_size; ++i) {
                 D[i] = 1.0f;
-                for (std::size_t j = 0; j < this->POINTS_SIZE; ++j) {
+                for (std::size_t j = 0; j < this->points_size; ++j) {
                     if (i != j) {
                         D[i] *= this->points[i].x - this->points[j].x;
                     }
@@ -267,7 +306,7 @@ struct lagrange_poly : public DataType {
 
     vector<T, 3> interp3v(float factor) override {
         if constexpr (Order > 2 || Order == 0) {
-            const T x_new = mtpu::lerp(this->points[0].x, this->points[this->POINTS_SIZE - 1].x, factor);
+            const T x_new = mtpu::lerp(this->points[0].x, this->points[this->points_size - 1].x, factor);
             T y_new = 0.0f, z_new = 0.0f;
             for (std::size_t i = 0; i < this->POINTS_SIZE; ++i) {
                 T L_i = 1.0f;
@@ -313,12 +352,11 @@ struct lagrange_poly : public DataType {
 * @tparam N - Space dimension.
 */
 template <
+    typename T = float,
     std::size_t N = 2, 
-    std::size_t Order = 2,  
-    typename T = float, 
-    typename DataType = struct lerp_data<N, Order - 1, T>
+    std::size_t Order = 2
 >
-struct bezier_curve : public DataType {
+struct bezier_curve : public lerp_data<T, N, Order> {
     static_assert(Order != 1, "The order of bezier must greater than 1");
 
     using DataType::DataType;
@@ -333,7 +371,7 @@ struct bezier_curve : public DataType {
             const T dt2 = dt * dt;
             const T t2 = t * t;
             return dt2 * dt * this->points[0].y + 3.0f * t * dt2 * this->points[1].y +
-                3.0f * t2 * dt * this->points[2].y + t2 * t * this->points[3].y;
+                   3.0f * t2 * dt * this->points[2].y + t2 * t * this->points[3].y;
         };
     }
     T interpz(float t) override {
@@ -346,7 +384,7 @@ struct bezier_curve : public DataType {
             const T dt2 = dt * dt;
             const T t2 = t * t;
             return dt2 * dt * this->points[0].z + 3.0f * t * dt2 * this->points[1].z +
-                3.0f * t2 * dt * this->points[2].z + t2 * t * this->points[3].z;
+                   3.0f * t2 * dt * this->points[2].z + t2 * t * this->points[3].z;
         };
     }
     vector<T, 2> interp2v(float t) override {

@@ -1,3 +1,14 @@
+/**
+* @file constfunc.hpp
+* @brief MathType Utility File. 
+* @author AFUtik
+* @date 2025-07-04
+* @version v1.0.0-dev
+* @copyright MIT
+*
+* @details Provides Math Functions and constants.
+*/
+
 #ifndef CONSTFUNC_HPP
 #define CONSTFUNC_HPP
 

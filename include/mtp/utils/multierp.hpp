@@ -1,3 +1,14 @@
+/**
+* @file multierp.hpp
+* @brief MathType Utility File.
+* @author AFUtik
+* @date 2025-07-04
+* @version v1.0.0-dev
+* @copyright MIT
+* 
+* @details Provies Bilinear Interpolation and Trilinear Interpolation realizations.
+*/
+
 #ifndef MULTIERP_HPP
 #define MULTIERP_HPP
 
@@ -25,6 +36,9 @@ struct blerp_data { /* Bilinear Interpolation Data */
     constexpr blerp_data(const T& x, const T& y) : p1(0), p2(x, y) {}
     
     constexpr blerp_data() : p1(0), p2(1) {}
+
+    virtual T interp(const vector<T, 2>& vec) = 0;
+    virtual T interp(T x, T y) = 0;
 };
 
 template <typename T = float, size_t W = 0, size_t H = W, size_t V = H>
@@ -48,13 +62,16 @@ struct tlerp_data {  /* Trilinear Interpolation Data */
     constexpr tlerp_data(const T& x, const T& y, const T& z) : p1(0), p2(x, y, z) {}
     
     constexpr tlerp_data() : p1(0), p2(1) {}
+
+    virtual T interp(const vector<T, 3>& vec) = 0;
+    virtual T interp(T x, T y, T z) = 0;
 };
 
 template <typename T = float, size_t N = 0, size_t M = N>
 struct blerp : public blerp_data<T, N, M> {
     using blerp_data<T, N, M>::blerp_data;
 
-    T interp(const vector<T, 2> &vec) const {
+    T interp(const vector<T, 2> &vec) override {
         const T subx = this->p2.x - this->p1.x;
         const T suby = this->p2.y - this->p1.y;
 
@@ -69,7 +86,7 @@ struct blerp : public blerp_data<T, N, M> {
         );
     }
 
-    T interp(T x, T y) const {
+    T interp(T x, T y) override {
         const T subx = this->p2.x - this->p1.x;
         const T suby = this->p2.y - this->p1.y;
 
@@ -130,7 +147,7 @@ template <typename T = float, size_t W = 0, size_t H = W, size_t V = H>
 struct tlerp : public tlerp_data<T, W, H, V> {
     using tlerp_data<T, W, H, V>::tlerp_data;
 
-    T interp(const vector<T, 3> &vec) const {
+    T interp(const vector<T, 3> &vec) override {
         const T subx = this->p2.x - this->p1.x;
         const T suby = this->p2.y - this->p1.y;
         const T subz = this->p2.z - this->p1.z;
@@ -153,7 +170,7 @@ struct tlerp : public tlerp_data<T, W, H, V> {
         );
     }
 
-    T interp(T x, T y, T z) const {
+    T interp(T x, T y, T z) override {
         const T subx = this->p2.x - this->p1.x;
         const T suby = this->p2.y - this->p1.y;
         const T subz = this->p2.z - this->p1.z;

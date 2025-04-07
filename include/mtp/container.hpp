@@ -1,5 +1,16 @@
-#ifndef MATH_TYPES_HPP
-#define MATH_TYPES_HPP
+/**
+* @file container.hpp
+* @brief MathType File.
+* @author AFUtik
+* @date 2025-07-04
+* @version v1.0.0-dev
+* @copyright MIT
+*
+* @details Static container realization and dynamic container realization.
+*/
+
+#ifndef CONTAINER_HPP
+#define CONTAINER_HPP
 
 #include <type_traits>
 #include <algorithm>

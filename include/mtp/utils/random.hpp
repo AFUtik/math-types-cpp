@@ -1,3 +1,14 @@
+/**
+* @file random.hpp
+* @brief MathType Utility File.
+* @author AFUtik
+* @date 2025-07-04
+* @version v1.0.0-dev
+* @copyright MIT
+* 
+* @details Generates random values in DataCointainer class. Can be applied to vector, matrix.
+*/
+
 #ifndef RANDOM_HPP
 #define RANDOM_HPP
 

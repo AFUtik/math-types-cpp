@@ -1,3 +1,14 @@
+/**
+* @file transform.hpp
+* @brief MathType Utility File.
+* @author AFUtik
+* @date 2025-07-04
+* @version v1.0.0-dev
+* @copyright MIT
+* 
+* @details Provides transform functions and structures.
+*/
+
 #ifndef TRANSFORM_HPP
 #define TRANSFORM_HPP
 
